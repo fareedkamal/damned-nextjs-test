@@ -5,6 +5,7 @@ import './globals.css';
 import FooterBar from '@/components/footer/page';
 import { GoodProvider } from '@/components/context/GoodContext';
 import { SessionProvider } from '@/client/SessionProvider';
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body suppressHydrationWarning={true} className={inter.className}>
         <SessionProvider>
           <GoodProvider>
+            <Toaster position='bottom-center' reverseOrder={false} />
             <Navbar />
             {children}
             <FooterBar />

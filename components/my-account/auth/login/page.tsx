@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useSession } from '@/client/SessionProvider';
 import { TextField, Button } from '@mui/material';
+import toast from 'react-hot-toast';
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -32,17 +33,19 @@ const LoginForm = () => {
       console.log(customer);
 
       if (!!customer?.id && customer.id !== 'guest') {
+        toast.success(`Welcome Back! ${customer.firstName}`);
         // toast({
         //   title: 'Success',
         //   description: `Welcome Back! ${customer.firstName}`,
         // });
       } else {
+        toast.error((customer || 'Login failed. Please try again.') as string);
         // toast({
         //   title: 'Login Error',
         //   description: (customer || 'Login failed. Please try again.') as string,
         //   variant: 'destructive',
         // });
-        // formik.resetForm();
+        formik.resetForm();
       }
     },
   });
