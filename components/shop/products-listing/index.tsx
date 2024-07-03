@@ -43,7 +43,7 @@ const ProductsList = ({
         />
       ) : null}
 
-      <div className='lg:mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className='lg:mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2'>
         {Sorting(sort, data).map(
           (p: any, index) =>
             12 * (page - 1) <= index &&

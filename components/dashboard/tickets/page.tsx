@@ -13,7 +13,7 @@ const Ticket: React.FC<TicketProps> = (props) => {
   const [shipping, setShipping] = useState<Boolean>(false);
 
   return (
-    <div className={`${props.className} lg:px-32 px-10`}>
+    <div className='py-[2em] md:py-[5em]'>
       <div className='grid lg:grid-cols-3 lg:gap-24 gap-5 w-full'>
         <MarkTicket
           mark='https://admin.damneddesigns.com/wp-content/uploads/4payments6weeks0interest-white-1.png'

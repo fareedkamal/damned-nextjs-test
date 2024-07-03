@@ -4,10 +4,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import MobileNavMenu from './mobile-nav-menu';
-import { Collapse, Grow, useMediaQuery } from '@mui/material';
+import { Box, Collapse, Grow, Paper, useMediaQuery } from '@mui/material';
 import Fade from '@mui/material/Fade';
 import { usePathname } from 'next/navigation';
 import SearchBar from './search-bar';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
+import './styles.css';
+import { text } from '@/app/styles';
 
 interface NavbarProps {
   style?: Boolean;
@@ -22,6 +26,30 @@ const Page: React.FC<NavbarProps> = (props) => {
   const [navStyle, setNavStyle] = useState<Boolean>(
     path === '/' ? true : false
   );
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [popoverHovered, setPopoverHovered] = useState(false);
+
+  const handlePopoverOpen = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    if (!popoverHovered) {
+      setAnchorEl(null);
+    }
+  };
+
+  const handlePopoverMouseEnter = () => {
+    setPopoverHovered(true);
+  };
+
+  const handlePopoverMouseLeave = () => {
+    setPopoverHovered(false);
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
     if (isLargeScreen) {
@@ -46,7 +74,7 @@ const Page: React.FC<NavbarProps> = (props) => {
       onMouseOver={() => setHover(true)}
       onMouseOut={() => setHover(false)}
     >
-      <div className='m-auto w-full 2xl:w-[1440px] items-center px-[30px] py-[10px] flex justify-between'>
+      <div className='m-auto w-full 2xl:w-[1440px] items-center px-[30px] py-[1em]  flex justify-between'>
         <Link href='/'>
           {navStyle ? (
             hover ? (
@@ -78,51 +106,78 @@ const Page: React.FC<NavbarProps> = (props) => {
         </Link>
         <div className='flex items-center gap-[20px]'>
           <div className='hidden sm:flex items-center gap-[40px]'>
-            <div className='relative group/shopbutton flex items-center'>
-              <div className='flex items-center gap-1'>
-                <button className='hover:text-slate-400'>SHOP</button>
-                <ChevronDown className='h-3 w-3' />
-              </div>
-
-              <div
-                className='
-               hidden justify-center top-[35px] fixed m-auto w-auto 2xl:w-[1440px] left-0 right-0
-              px-[50px] py-[20px] gap-y-0 gap-x-[40px] flex-wrap text-nowrap
-              group-hover/shopbutton:flex 
-               bg-[#a89c9c]  text-slate-700'
-              >
+            <Box
+              aria-owns={open ? 'mouse-over-popover' : undefined}
+              aria-haspopup='true'
+              onMouseEnter={handlePopoverOpen}
+              onMouseLeave={handlePopoverClose}
+              className='flex items-center  hover:text-slate-400 gap-1 cursor-pointer'
+            >
+              SHOP
+              <ChevronDown className='h-3 w-3' />
+            </Box>
+            <Popover
+              disableScrollLock
+              id='mouse-over-popover'
+              sx={{
+                '.MuiPopover-paper': {
+                  position: 'fixed',
+                  width: 'calc(100% - 30px)',
+                  maxWidth: '1440px',
+                  m: 'auto !important',
+                  left: '0px !important',
+                  right: '0px !important',
+                  top: '52px !important',
+                  borderRadius: 0,
+                  boxShadow: 'none',
+                  bgcolor: '#918484',
+                },
+              }}
+              slotProps={{
+                paper: {
+                  onMouseEnter: handlePopoverMouseEnter,
+                  onMouseLeave: handlePopoverMouseLeave,
+                },
+              }}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handlePopoverClose}
+            >
+              <div className='p-6 bg-[#918484] flex justify-center gap-4 w-full flex-wrap'>
                 <Link
                   href='/shop/osiris-chef-knives'
-                  className='hover:text-slate-200'
+                  className={`${text.md} text-white font-medium hover:opacity-50`}
                 >
                   OSIRIS CHEF KNIFE
                 </Link>
                 <Link
                   href='/shop/pocket-knives'
-                  className='hover:text-slate-200'
+                  className={`${text.md} text-white font-medium hover:opacity-50`}
                 >
                   POCKET KNIVES
                 </Link>
                 <Link
                   href='/shop/fixed-blade-knives'
-                  className='hover:text-slate-200'
+                  className={`${text.md} text-white font-medium hover:opacity-50`}
                 >
                   FIXED BLADE KNIVES
                 </Link>
-                <Link href='/shop/edc' className='hover:text-slate-200'>
+                <Link
+                  href='/shop/edc'
+                  className={`${text.md} text-white font-medium hover:opacity-50`}
+                >
                   POCKET ART
                 </Link>
-                {/* <Link href='/shop/fidget' className='hover:text-slate-200'>
-                  FIDGET
-                </Link> */}
+
                 <Link
                   href='/shop/sidekick-pry-bars'
-                  className='hover:text-slate-200'
+                  className={`${text.md} text-white font-medium hover:opacity-50`}
                 >
                   SIDEKICK PRY BARS
                 </Link>
               </div>
-            </div>
+            </Popover>
+
             <Link
               href='/help'
               className='flex items-center hover:text-slate-400'
@@ -145,11 +200,7 @@ const Page: React.FC<NavbarProps> = (props) => {
             </Collapse>
           </div>
 
-          <Search
-            onClick={() => setOpenSearch(!openSearch)}
-            className='cursor-pointer h-5 w-5'
-          />
-          {openSearch ? <SearchBar /> : null}
+          <SearchBar />
         </div>
         {/* <svg
           xmlns='http://www.w3.org/2000/svg'

@@ -1,3 +1,4 @@
+import { text } from '@/app/styles';
 import OrisisMain from '@/components/shop/orisis/page';
 import ProductsList from '@/components/shop/products-listing';
 import Products from '@/components/shop/products-listing/products';
@@ -22,13 +23,13 @@ const Orisis: React.FC = async () => {
         </video>
       </div>
 
-      <div className='flex m-auto px-[30px] w-full 2xl:w-[1440px] h-[400px] md:h-[70vh]'>
+      <div className='flex m-auto px-[30px] w-full 2xl:w-[1440px] h-[400px] md:h-screen'>
         <div className='text-white my-auto text-center md:text-left'>
-          <p className='text-2xl md:text-3xl font-semibold mb-1'>
+          <p className={`${text.lg} md:text-3xl font-semibold mb-1`}>
             OSIRIS CHEF KNIVES
           </p>
-          <p className='text-xs mb-4'>FUNCTION x AESTHETIC</p>
-          <p className='text-xs mb-4'>
+          <p className={`${text.md} mb-4`}>FUNCTION x AESTHETIC</p>
+          <p className={`${text.md} mb-4`}>
             We love EDC knives but we love food more! The Osiris knives were
             born out of a burning desire to create a set of knives for
             ourselves. After having them as a staple in our kitchen for the past
@@ -36,7 +37,7 @@ const Orisis: React.FC = async () => {
             intention is is to now bring these remarkably designed, premium
             knives to your kitchen.
           </p>
-          <p className='text-xs'>
+          <p className={`${text.md} mb-4`}>
             Make cooking great again with our Osiris Chef Knives!{' '}
           </p>
         </div>
@@ -61,11 +62,11 @@ const Orisis: React.FC = async () => {
                 alt='this is orisis'
               />
               <div className='absolute text-center self-center p-10  text-white'>
-                <p className='text-2xl font-semibold'>MAKE IT YOURS</p>
-                <p className='text-lg text-slate-400'>
+                <p className={`${text.lg} font-semibold`}>MAKE IT YOURS</p>
+                <p className={`${text.md} text-slate-400`}>
                   With replaceable scales
                 </p>
-                <p className='text-xs'>
+                <p className={`${text.md}`}>
                   We are strong advocates of individual expressions fo self and
                   as such we have always created products that yu ahve full
                   control over. Borrowing from our EDC knives, the Osiris chef

@@ -108,7 +108,7 @@ const Card: React.FC<PocketItemProps> = (props) => {
         <h5 className={`${text.md} mb-2 text-gray-600 font-medium uppercase`}>
           {props.name}
         </h5>
-        <p className={`${text.md} font-light`}>{props.price}</p>
+        <p className={`${text.sm} font-light`}>{props.price}</p>
       </div>
     </div>
   );

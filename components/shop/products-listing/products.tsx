@@ -9,9 +9,11 @@ import { CircularProgress } from '@mui/material';
 const Products = ({
   id,
   showPagination,
+  search,
 }: {
-  id: number;
+  id?: number | undefined;
   showPagination?: Boolean | undefined;
+  search?: string | undefined;
 }) => {
   const [products, setProducts] = useState<any>(null);
 
@@ -25,21 +27,33 @@ const Products = ({
     }
   };
 
+  const fetchQuery = async (query: string) => {
+    const { nodes: initialProducts } = await fetchProducts({
+      first: 30,
+      where: { search: query },
+    });
+    if (initialProducts) {
+      setProducts(initialProducts);
+    }
+  };
+
   useEffect(() => {
-    if (!products) {
+    if (!products && id) {
       fetchData(id);
     }
-  }, []);
+    if (search) {
+      fetchQuery(search);
+    }
+  }, [id, search]);
 
   return (
     <>
       {products ? (
         <ProductsList data={products} showPagination={showPagination} />
       ) : (
-        <div className='flex w-full items-center justify-center'>
+        <div className='flex w-full items-center h-[500px] justify-center'>
           <div className='flex w-fit items-center gap-2'>
             <CircularProgress color='inherit' />
-            <p>Loading</p>
           </div>
         </div>
       )}

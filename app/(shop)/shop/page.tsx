@@ -6,7 +6,7 @@ const Shop: React.FC = () => {
       className='
       px-[30px] py-[2em] md:py-[5em]
       2xl:w-[1440px] w-full m-auto 
-      grid grid-cols-1 lg:grid-cols-3 gap-5'
+      grid grid-cols-1 lg:grid-cols-3 gap-2'
     >
       <FigureItem
         className='lg:row-span-3'
