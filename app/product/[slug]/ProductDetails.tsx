@@ -1,111 +1,149 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProductInfo } from '@/lib/graphql/type';
-import { useGood } from '@/components/context/GoodContext';
+import { text } from '@/app/styles';
+import { CircularProgress, TextField } from '@mui/material';
+import classNames from 'classnames';
+import { useCartMutations, useProduct } from '@woographql/react-hooks';
+import { sessionContext } from '@/client/SessionProvider';
+import { Product } from '@/graphql';
+import { getRequiredAttributes } from './helpers';
+import toast from 'react-hot-toast';
 
 interface ProductDetailsProps {
-  productInfo: any;
-  price: string;
+  product: any;
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({
-  productInfo,
-  price,
-}) => {
-  const { good, setGood } = useGood();
-  const [type, setType] = useState<any>();
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
+  const [quantity, setQuantity] = useState(1);
+  const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
+  const [selectedVariation, setSelectedVariation] = useState<any>(null);
+  const [executing, setExecuting] = useState<any>(false);
 
-  console.log(productInfo);
+  const variation = getRequiredAttributes(
+    selectedAttribute,
+    selectedVariation as any
+  );
 
-  const handleGood = () => {
-    good
-      ? good.filter((g) => g.name == productInfo.name).length < 1
-        ? setGood([
-            ...(good || []),
-            {
-              name: productInfo.name,
-              price: productInfo.price ? productInfo.price : '',
-            },
-          ])
-        : alert('Already added')
-      : setGood([
-          {
-            name: productInfo.name,
-            price: productInfo.price ? productInfo.price : '',
-          },
-        ]);
+  const { fetching, mutate, quantityFound } = useCartMutations(
+    {
+      productId: product.databaseId,
+      variationId: selectedVariation?.databaseId ?? undefined,
+      variation,
+    },
+    sessionContext
+  );
+
+  const cartButtonDisabled =
+    fetching ||
+    executing ||
+    selectedVariation?.stockStatus === 'OUT_OF_STOCK' ||
+    !selectedVariation;
+
+  const mutation = quantityFound ? 'updateItemQuantities' : 'addToCart';
+
+  const addToCart = async () => {
+    try {
+      setExecuting(true);
+      const cart = await mutate(mutation, {
+        quantity: mutation === 'updateItemQuantities' ? quantity + 1 : quantity,
+      });
+      setExecuting(false);
+
+      if (!cart) {
+        toast.error('Error while adding to cart');
+      }
+
+      if (mutation === 'addToCart') {
+        toast.success('Added to cart');
+      } else {
+        toast.success('Cart updated');
+      }
+    } catch (error) {
+      console.log('Error while adding to cart');
+    }
   };
 
+  useEffect(() => {
+    if (quantityFound) {
+      setQuantity(quantityFound);
+    } else {
+      setQuantity(1);
+    }
+  }, [quantityFound]);
+
   return (
-    <>
-      <p className='text-3xl fond-semibold uppercase'>{productInfo.name}</p>
-      <div className='flex flex-col'>
-        <p className='text-xl'>{productInfo.price}</p>
-        <p>or 4 interest-free payments with</p>
+    <div className='flex flex-col gap-4'>
+      <div>
+        <h1 className={`${text.lg} font-normal uppercase`}>{product.name}</h1>
+        <p className={`${text.lg} font-normal`}>{product.price}</p>
       </div>
-      <div className='flex flex-col text-sm font-semibold'>
+
+      <div className='flex flex-col font-semibold'>
         <fieldset>
-          <legend className='sr-only'>Countries</legend>
-          {productInfo.attributes.nodes[0].options.map(
-            (option: any, index: any) => (
-              <div className='flex items-center mb-4' key={index}>
-                <input
-                  id={`country-option-${index}`}
-                  type='radio'
-                  name='countries'
-                  value={option}
-                  onClick={() => setType(option)}
-                  className='w-4 h-4 border-gray-300 focus:ring-2 focus:ring-stone-300 dark:focus:ring-stone-600 dark:focus:bg-stone-600 dark:bg-gray-700 dark:border-gray-600'
-                />
-                <label
-                  htmlFor={`country-option-${index}`}
-                  className='block ms-2 text-sm font-medium text-gray-900 dark:text-gray-300'
-                >
-                  <div className='flex flex-col'>
-                    <span>{option}</span>
-                    <span>{price}</span>
-                  </div>
-                </label>
-              </div>
-            )
-          )}
+          {product.variations.nodes.map((option: any) => (
+            <div className='flex  items-center mb-4' key={option.id}>
+              <input
+                id={option.databaseId}
+                type='radio'
+                checked={selectedVariation?.id === option.id}
+                name={option.name}
+                onChange={() => {
+                  setSelectedVariation(option);
+                  setSelectedAttribute({
+                    [option.attributes.nodes[0].label]:
+                      option.attributes.nodes[0].value,
+                  });
+                }}
+                className='w-4 h-4 border-gray-300 focus:ring-2 focus:ring-stone-300 dark:focus:ring-stone-600 dark:focus:bg-stone-600 dark:bg-gray-700 dark:border-gray-600'
+              />
+              <label
+                htmlFor={option.name}
+                className='block ms-2 text-sm font-medium text-gray-900 dark:text-gray-300'
+              >
+                <div className='flex flex-col'>
+                  <span>{option?.attributes.nodes[0]?.value ?? ''}</span>
+                  <span>{option.price}</span>
+                </div>
+              </label>
+            </div>
+          ))}
         </fieldset>
       </div>
 
-      {type && (
-        <div className='py-1 gap-1'>
+      {selectedVariation?.stockStatus === 'OUT_OF_STOCK' ? (
+        <div className=' flex flex-col gap-4 items-start'>
+          <p>Sold Out!</p>
           <p>
             Join the waitlist to be emailed when this product becomes available
           </p>
-          <div className='flex flex-col w-1/4 gap-1'>
-            <input
-              type='email'
-              name=''
-              id=''
-              className='border border-stone-300 px-2 py-1 text-slate-600 focus:outline-none'
-              placeholder='Email Address'
-            />
-            <button className='px-5 py-2 bg-stone-400 uppercase text-white text-xl hover:bg-stone-300'>
-              JOIN WAITLIST
-            </button>
-            {/* <p>The email provided is already on the waitlist for this project</p> */}
-          </div>
+          <TextField type='email' size='small' />
+          <button className='px-5 py-2 bg-stone-400 text-white '>
+            JOIN WAITLIST
+          </button>
         </div>
-      )}
+      ) : null}
 
       <button
-        className='px-4 py-2 w-1/3 text-white bg-stone-400 hover:bg-stone-300 focus:outline-none'
-        onClick={handleGood}
+        className={classNames(
+          'text-white px-8 py-4 w-[150px] text-nowrap bg-stone-400 flex items-center justify-center hover:bg-stone-300 focus:outline-none',
+          {
+            'cursor-not-allowed': cartButtonDisabled,
+          }
+        )}
+        onClick={addToCart}
+        disabled={cartButtonDisabled}
       >
-        <span>ADD TO CART</span>
+        {executing ? (
+          <CircularProgress sx={{ fontSize: 5 }} color='inherit' />
+        ) : (
+          'ADD TO CART'
+        )}
       </button>
 
-      <div
-        className='my-5'
-        dangerouslySetInnerHTML={{ __html: productInfo.description }}
-      ></div>
-    </>
+      <div dangerouslySetInnerHTML={{ __html: product.description }} />
+    </div>
   );
 };
 

@@ -1,0 +1,31 @@
+import * as Yup from 'yup';
+
+export const billingSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  firstName: Yup.string().required('First Name is required'),
+  lastName: Yup.string().required('Last Name is required'),
+  address1: Yup.string().required('Address Line 1 is required'),
+  address2: Yup.string(),
+  city: Yup.string().required('City is required'),
+  state: Yup.string().required('State is required'),
+  postcode: Yup.string().required('Postcode is required'),
+  country: Yup.string().required('Country is required'),
+  phone: Yup.string()
+    .matches(/^[0-9]+$/, 'Phone number must only contain digits')
+    .min(10, 'Phone number must be at least 10 digits')
+    .max(15, 'Phone number can be at most 15 digits')
+    .required('Phone number is required'),
+});
+
+export const shippingSchema = Yup.object().shape({
+  firstName: Yup.string().required('First Name is required'),
+  lastName: Yup.string().required('Last Name is required'),
+  address1: Yup.string().required('Address Line 1 is required'),
+  address2: Yup.string(),
+  city: Yup.string().required('City is required'),
+  state: Yup.string().required('State is required'),
+  postcode: Yup.string().required('Postcode is required'),
+  country: Yup.string().required('Country is required'),
+});
