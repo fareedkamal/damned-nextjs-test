@@ -82,7 +82,7 @@ const PaymentSection = () => {
         <div className='absolute bg-white z-[999]  h-full w-full flex '>
           <div className='m-auto  flex text-center gap-4 flex-col items-center justify-center'>
             <p>
-              Thank You for your order. We're redirecting to your order page
+              {`Thank You for your order. We're redirecting to your order page`}
             </p>
             <CircularProgress color='inherit' />
           </div>
