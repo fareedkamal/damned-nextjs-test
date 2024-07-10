@@ -5,6 +5,7 @@ import CartTotal from '../cart-total';
 import { dispatch } from '@/redux/store';
 import { CartItem as CartItemInterface } from '@/graphql';
 import {
+  setCartClose,
   setCartLoading,
   setCartSection,
   setCheckoutSuccess,
@@ -50,6 +51,7 @@ const PaymentSection = () => {
       }
       setCheckoutSuccess(true);
       push(`/order-recieved/${order.databaseId}`);
+      dispatch(setCartClose());
     } catch (error) {
       console.log(error);
     }
