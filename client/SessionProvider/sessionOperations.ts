@@ -8,6 +8,7 @@ import type {
 
 import { apiCall } from '@/utils/apiCall';
 import { PaymentTokenCC, Customer as CustomerType } from '@/graphql';
+import getOrders from '@/lib/graphql/orders/query';
 
 type LoginResponse = {
   authToken: string;
@@ -132,6 +133,7 @@ export function createSessionOperations(
           });
 
         tokenManager.saveTokens({ sessionToken, authToken, refreshToken });
+
         dispatch({
           type: 'UPDATE_STATE',
           payload: {

@@ -5,6 +5,7 @@ import { fetchProducts } from '@/graphql';
 import ProductsList from './index';
 import { init } from '@graphql-codegen/cli';
 import { CircularProgress } from '@mui/material';
+import getOrders from '@/lib/graphql/orders/query';
 
 const Products = ({
   id,

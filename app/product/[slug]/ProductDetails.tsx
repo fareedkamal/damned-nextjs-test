@@ -25,7 +25,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     selectedAttribute,
     selectedVariation as any
   );
-
+  console.log(selectedVariation);
   const { fetching, mutate, quantityFound } = useCartMutations(
     {
       productId: product.databaseId,
@@ -36,7 +36,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   );
 
   const cartButtonDisabled =
-    fetching ||
     executing ||
     selectedVariation?.stockStatus === 'OUT_OF_STOCK' ||
     !selectedVariation;
@@ -44,11 +43,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const mutation = quantityFound ? 'updateItemQuantities' : 'addToCart';
 
   const addToCart = async () => {
+    if (selectedVariation.stockQuantity - quantityFound === 0) {
+      toast.error('Stock quantity exceeded');
+      return;
+    }
     try {
       setExecuting(true);
       const cart = await mutate(mutation, {
         quantity: mutation === 'updateItemQuantities' ? quantity + 1 : quantity,
       });
+      console.log(cart);
       setExecuting(false);
 
       if (!cart) {
@@ -66,6 +70,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   };
 
   useEffect(() => {
+    console.log(quantityFound);
+    console.log(selectedVariation);
     if (quantityFound) {
       setQuantity(quantityFound);
     } else {

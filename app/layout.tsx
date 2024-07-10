@@ -2,7 +2,6 @@
 import Navbar from '@/components/navbar/page';
 import './globals.css';
 import FooterBar from '@/components/footer/page';
-import { GoodProvider } from '@/components/context/GoodContext';
 import { SessionProvider } from '@/client/SessionProvider';
 import { Toaster } from 'react-hot-toast';
 import ReduxProvider from '@/redux/provider';

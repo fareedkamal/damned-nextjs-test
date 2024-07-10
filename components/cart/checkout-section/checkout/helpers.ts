@@ -11,6 +11,7 @@ export const billingSchema = Yup.object().shape({
   city: Yup.string().required('City is required'),
   state: Yup.string().required('State is required'),
   postcode: Yup.string().required('Postcode is required'),
+  company: Yup.string(),
   country: Yup.string().required('Country is required'),
   phone: Yup.string()
     .matches(/^[0-9]+$/, 'Phone number must only contain digits')
@@ -28,4 +29,14 @@ export const shippingSchema = Yup.object().shape({
   state: Yup.string().required('State is required'),
   postcode: Yup.string().required('Postcode is required'),
   country: Yup.string().required('Country is required'),
+  company: Yup.string(),
+});
+
+export const combinedSchema = Yup.object().shape({
+  billing: billingSchema,
+  shipping: shippingSchema,
+});
+
+export const onlyBillingSchema = Yup.object().shape({
+  billing: billingSchema,
 });

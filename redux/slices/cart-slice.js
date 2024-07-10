@@ -4,6 +4,9 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   openCart: false,
   cartLoading: false,
+  diffShipAddress: false,
+  cartSection: 'CART',
+  checkoutSuccess: false,
 };
 
 const cartSlice = createSlice({
@@ -19,9 +22,25 @@ const cartSlice = createSlice({
     setCartLoading: (state, action) => {
       state.cartLoading = action.payload;
     },
+    setDiffShipAddress: (state, action) => {
+      state.diffShipAddress = action.payload;
+    },
+    setCartSection: (state, action) => {
+      state.cartSection = action.payload;
+    },
+    setCheckoutSuccess: (state) => {
+      state.checkoutSuccess = true;
+    },
   },
 });
 
-export const { setCartOpen, setCartClose, setCartLoading } = cartSlice.actions;
+export const {
+  setCartOpen,
+  setCartClose,
+  setCartLoading,
+  setDiffShipAddress,
+  setCartSection,
+  setCheckoutSuccess,
+} = cartSlice.actions;
 
 export default cartSlice.reducer;

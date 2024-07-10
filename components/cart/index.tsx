@@ -14,7 +14,12 @@ import { useState } from 'react';
 import CartComponent from './cart-component';
 import { useSelector } from 'react-redux';
 import { dispatch } from '@/redux/store';
-import { setCartClose, setCartOpen } from '@/redux/slices/cart-slice';
+import {
+  setCartClose,
+  setCartOpen,
+  setCartSection,
+} from '@/redux/slices/cart-slice';
+import { CheckoutProvider } from '@/client/CheckoutProvider';
 
 const Cart = () => {
   const openCart = useSelector((state: any) => state.cartSlice.openCart);
@@ -34,10 +39,15 @@ const Cart = () => {
           },
         }}
         anchor='right'
-        onClose={() => dispatch(setCartClose())}
+        onClose={() => {
+          dispatch(setCartClose());
+          dispatch(setCartSection('CART'));
+        }}
         open={openCart}
       >
-        <CartComponent />
+        <CheckoutProvider>
+          <CartComponent />
+        </CheckoutProvider>
       </Drawer>
     </>
   );

@@ -201,7 +201,9 @@ export function CheckoutProvider({ children }: CheckoutProps) {
   ]);
 
   const updateCheckoutDetails = async (details: Partial<CheckoutDetails>) => {
+    console.log('billing from updateCheckoutdetails: ');
     const { billing, shipping } = details;
+
     if (billing || shipping) {
       if (billing) {
         billing.overwrite = true;
@@ -262,13 +264,7 @@ export function CheckoutProvider({ children }: CheckoutProps) {
     createOrder,
   };
 
-  return (
-    <div className='flex flex-col max-w-screen-lg min-h-screen px-4 mx-auto gap-y-8'>
-      {/* <CheckoutProgress />
-      <Separator /> */}
-      <Provider value={store}>{children}</Provider>
-    </div>
-  );
+  return <Provider value={store}>{children}</Provider>;
 }
 
 export function useCheckoutDetails() {
