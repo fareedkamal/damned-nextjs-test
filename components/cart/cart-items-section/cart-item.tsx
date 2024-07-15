@@ -24,8 +24,7 @@ export function CartItem({ item, priority }: CartItemProps) {
   const slug = item.product?.node?.slug as string;
   const productId = item.product?.node?.databaseId as number;
   const variationId = item.variation?.node?.databaseId || undefined;
-  const maxQuantity = item?.variation?.node?.stockQuantity ?? 0;
-  const maxQuantityRef = useRef(maxQuantity);
+  const quantityLeft = item?.variation?.node?.stockQuantity ?? 0;
   const productImageSrc = item?.variation?.node?.image?.sourceUrl ?? '';
   const productName = item?.product?.node.name ?? '';
   const productPrice = item?.total ?? '';
@@ -90,9 +89,9 @@ export function CartItem({ item, priority }: CartItemProps) {
     }
     dispatch(setCartLoading(false));
 
-    console.log(maxQuantity);
-    if (value >= maxQuantity) {
-      toast.error(`Stock Limit Reached. Max Quantity is ${maxQuantity}`);
+    console.log(quantityLeft);
+    if (value >= quantityLeft) {
+      toast.error(`Stock Limit Reached. Max Quantity is ${quantityLeft}`);
       setValue(quantity);
       return;
     }
@@ -111,8 +110,8 @@ export function CartItem({ item, priority }: CartItemProps) {
     dispatch(setCartLoading(true));
     try {
       await mutate('updateItemQuantities', { quantity });
-      console.log(maxQuantity);
-      if (maxQuantity === 0) {
+      console.log(quantityLeft);
+      if (quantityLeft === 0) {
         toast.error('Stock Limit Reached');
       } else {
         setQuantity((prevState) => ++prevState);
@@ -176,7 +175,7 @@ export function CartItem({ item, priority }: CartItemProps) {
           </IconButton>
           <div className='h-10 w-auto border-x border-gray-300 flex'>
             <input
-              max={maxQuantity + quantity}
+              max={quantityLeft + quantity}
               min={1}
               value={value}
               disabled={fetching}
