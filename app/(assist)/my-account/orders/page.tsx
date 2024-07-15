@@ -35,6 +35,14 @@ const Orders = () => {
         <Loader className='w-full mt-4' text='Fetching Orders...' />
       ) : (
         <div className='overflow-x-scroll no-scrollbar'>
+          {orders && orders.length === 0 ? (
+            <div className='mb-4 flex gap-4'>
+              <p>No order sent.</p>
+              <Link className='font-bold' href='/shop'>
+                Browse Products
+              </Link>
+            </div>
+          ) : null}
           <table className='w-full border border-gray-300 '>
             <thead className='border-b [&>td]:p-4'>
               <td>Order</td>

@@ -16,7 +16,7 @@ const EditAddress = () => {
             <h1>BILLING ADDRESS</h1>
             <Link href='/my-account/edit-address/billing'>Edit</Link>
           </div>
-          <p>{`${billing?.firstName} ${billing?.lastName}`}</p>
+          <p>{`${billing?.firstName ?? ''} ${billing?.lastName ?? ''}`}</p>
           <p>{billing?.address1}</p>
           <p>{billing?.address2}</p>
           <p>{billing?.city}</p>
@@ -32,7 +32,7 @@ const EditAddress = () => {
             <h1>SHIPPING ADDRESS</h1>
             <Link href='/my-account/edit-address/shipping'>Edit</Link>
           </div>
-          <p>{`${shipping?.firstName} ${shipping?.lastName}`}</p>
+          <p>{`${shipping?.firstName ?? ''} ${shipping?.lastName ?? ''}`}</p>
           <p>{shipping?.address1}</p>
           <p>{shipping?.address2}</p>
           <p>{shipping?.city}</p>
