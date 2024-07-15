@@ -69,6 +69,17 @@ export function CartItem({ item, priority }: CartItemProps) {
   };
 
   const handleChange = async (e: any) => {
+    const value = Number(e.target.value);
+    if (value === quantity) {
+      return;
+    }
+    if (value <= 0) {
+      toast.error('Min Quantity Required');
+      setValue(1);
+      setQuantity(1);
+      return;
+    }
+
     dispatch(setCartLoading(true));
     try {
       await mutate('updateItemQuantities', { quantity });
@@ -78,14 +89,8 @@ export function CartItem({ item, priority }: CartItemProps) {
       return;
     }
     dispatch(setCartLoading(false));
+
     console.log(maxQuantity);
-    const value = Number(e.target.value);
-    if (value <= 0) {
-      toast.error('Min Quantity Required');
-      setValue(1);
-      setQuantity(1);
-      return;
-    }
     if (value >= maxQuantity) {
       toast.error(`Stock Limit Reached. Max Quantity is ${maxQuantity}`);
       setValue(quantity);
@@ -171,7 +176,7 @@ export function CartItem({ item, priority }: CartItemProps) {
           </IconButton>
           <div className='h-10 w-auto border-x border-gray-300 flex'>
             <input
-              max={maxQuantity}
+              max={maxQuantity + quantity}
               min={1}
               value={value}
               disabled={fetching}
