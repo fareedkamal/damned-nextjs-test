@@ -40,3 +40,7 @@ export const combinedSchema = Yup.object().shape({
 export const onlyBillingSchema = Yup.object().shape({
   billing: billingSchema,
 });
+
+export const onlyShippingSchema = Yup.object().shape({
+  shipping: shippingSchema,
+});

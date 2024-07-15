@@ -6,7 +6,6 @@ import Ticket from '@/components/dashboard/tickets/page';
 import DashboardBack from '@/components/dashboardBack';
 import HeroSection from '@/components/hero-section/hero-section';
 import { text } from './styles';
-import getOrders from '@/lib/graphql/orders/query';
 
 export default async function Home() {
   return (

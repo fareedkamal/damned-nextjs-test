@@ -38,7 +38,7 @@ const ShippingForm = ({ formik }: any) => {
 
   useEffect(() => {
     if (prevShippingCountry.current !== shippingCountry) {
-      formik.setFieldValue('billing.state', '');
+      formik.setFieldValue('shipping.state', '');
     }
   }, [shippingCountry]);
 

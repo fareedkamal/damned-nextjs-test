@@ -178,10 +178,14 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ cart, sessionToken });
-  } catch (err) {
-    console.log(err);
+  } catch (err: any) {
     return NextResponse.json(
-      { errors: { message: 'Sorry, something went wrong' } },
+      {
+        errors: {
+          message:
+            err?.response.errors[0]?.message ?? 'Sorry, something went wrong.',
+        },
+      },
       { status: 500 }
     );
   }

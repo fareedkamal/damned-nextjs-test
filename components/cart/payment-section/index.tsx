@@ -1,21 +1,18 @@
 import { text } from '@/app/styles';
-import { useSession } from '@/client/SessionProvider';
-
 import CartTotal from '../cart-total';
 import { dispatch } from '@/redux/store';
-import { CartItem as CartItemInterface } from '@/graphql';
 import {
   setCartClose,
   setCartLoading,
   setCartSection,
-  setCheckoutSuccess,
 } from '@/redux/slices/cart-slice';
 import { ArrowLeft } from 'lucide-react';
 import { useCheckoutDetails } from '@/client/CheckoutProvider';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
-import { CircularProgress } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { Loader } from '@/components/utils';
+import { Button } from '@mui/material';
 
 const PaymentSection = () => {
   const {
@@ -27,12 +24,12 @@ const PaymentSection = () => {
     coupons,
     createOrder,
   } = useCheckoutDetails();
-  const { push } = useRouter();
+  const { push, refresh } = useRouter();
   const [checkoutSuccess, setCheckoutSuccess] = useState<any>(null);
 
   const handleCheckout = async () => {
+    dispatch(setCartLoading(true));
     try {
-      dispatch(setCartLoading(true));
       const order = await createOrder({
         customerId,
         billing,
@@ -43,17 +40,27 @@ const PaymentSection = () => {
         paymentMethod: 'cod',
         paymentMethodTitle: 'Cash on Delivery',
       });
-      dispatch(setCartLoading(false));
 
+      dispatch(setCartLoading(false));
       if (!order) {
-        toast.error('Error while checking out.');
+        toast.error('Checkout session expired.');
         return;
       }
+
       setCheckoutSuccess(true);
-      push(`/order-recieved/${order.databaseId}`);
-      dispatch(setCartClose());
+
+      setTimeout(() => {
+        push(`/order-recieved/${order.orderNumber}?key=${order.orderKey}`);
+        dispatch(setCartClose());
+        dispatch(setCartSection('CART'));
+      }, 5000);
     } catch (error) {
       console.log(error);
+      toast.error('Checkout session expired.');
+      dispatch(setCartLoading(false));
+      dispatch(setCartClose());
+      dispatch(setCartSection('CART'));
+      refresh();
     }
   };
 
@@ -73,20 +80,21 @@ const PaymentSection = () => {
         <div className='p-2'>TESTING CHECKOUT WITH CASH ON DELIVERY</div>
         <CartTotal showDetails={true} />
       </div>
-      <button
+
+      <Button
         onClick={handleCheckout}
-        className='cursor-pointer p-8 text-white text-center w-full bg-gray-700'
+        className='py-8 bg-stone-500 w-full rounded-none text-white hover:bg-stone-600'
       >
-        CHECKOUT
-      </button>
+        Checkout
+      </Button>
 
       {checkoutSuccess ? (
-        <div className='absolute bg-white z-[999]  h-full w-full flex '>
-          <div className='m-auto  flex text-center gap-4 flex-col items-center justify-center'>
+        <div className='absolute bg-white z-[999] h-full w-full flex '>
+          <div className='m-auto'>
             <p>
               {`Thank You for your order. We're redirecting to your order page`}
             </p>
-            <CircularProgress color='inherit' />
+            <Loader />
           </div>
         </div>
       ) : null}

@@ -5,6 +5,8 @@ import CartTotal from '../cart-total';
 import { dispatch } from '@/redux/store';
 import { CartItem as CartItemInterface } from '@/graphql';
 import { setCartClose, setCartSection } from '@/redux/slices/cart-slice';
+import { LoadingButton } from '@mui/lab';
+import { Button } from '@mui/material';
 
 const CartItemsSection = () => {
   const { cart } = useSession();
@@ -22,12 +24,13 @@ const CartItemsSection = () => {
         <div className='flex h-screen p-4'>
           <div className='m-auto text-center'>
             <p className='mb-6'>Your cart is empty!</p>
-            <button
+            <Button
+              variant='outlined'
               onClick={() => dispatch(setCartClose())}
-              className='px-6 py-4 transition-all duration-100 ease-in  text-blue-400 border border-blue-400 hover:text-white  hover:bg-blue-400'
+              className='border-stone-500 hover:border-stone-600 hover:bg-stone-200 text-stone-500'
             >
-              Return to shop
-            </button>
+              RETURN TO SHOP
+            </Button>
           </div>
         </div>
       ) : (
@@ -36,12 +39,13 @@ const CartItemsSection = () => {
             <CartItemList items={items} />
             <CartTotal showDetails={false} />
           </div>
-          <button
+
+          <Button
             onClick={() => dispatch(setCartSection('CHECKOUT'))}
-            className='cursor-pointer p-8 text-white text-center w-full bg-gray-700'
+            className='py-8 bg-stone-500 w-full rounded-none  text-white hover:bg-stone-600'
           >
-            CHECK OUT
-          </button>
+            Place Order
+          </Button>
         </>
       )}
     </>

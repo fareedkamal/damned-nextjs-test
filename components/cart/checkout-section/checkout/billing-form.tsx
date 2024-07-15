@@ -29,6 +29,7 @@ import { setCartClose, setCartLoading } from '@/redux/slices/cart-slice';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { Address } from '@/client/AddressForm';
+import CartTotal from '../../cart-total';
 
 const BillingForm = ({ formik }: any) => {
   const billingCountry = formik.values.billing.country as CountriesEnum;
@@ -276,4 +277,4 @@ const BillingForm = ({ formik }: any) => {
   );
 };
 
-export default memo(BillingForm);
+export default BillingForm;

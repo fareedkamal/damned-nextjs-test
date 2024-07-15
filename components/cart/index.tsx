@@ -20,15 +20,24 @@ import {
   setCartSection,
 } from '@/redux/slices/cart-slice';
 import { CheckoutProvider } from '@/client/CheckoutProvider';
+import { Badge } from '@mui/material';
+import { useSession } from '@/client/SessionProvider';
 
 const Cart = () => {
   const openCart = useSelector((state: any) => state.cartSlice.openCart);
+  const { cart } = useSession();
+  const count = cart?.contents.itemCount;
 
   return (
     <>
-      <div className=' cursor-pointer' onClick={() => dispatch(setCartOpen())}>
-        <ShoppingBagIcon className='h-5 w-5' />
-      </div>
+      <button
+        className='w-fit cursor-pointer'
+        onClick={() => dispatch(setCartOpen())}
+      >
+        <Badge badgeContent={count ?? 0} color='error'>
+          <ShoppingBagIcon className='h-5 w-5' />
+        </Badge>
+      </button>
       <Drawer
         sx={{
           '& .MuiDrawer-paper': {

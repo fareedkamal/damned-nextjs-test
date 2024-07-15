@@ -201,7 +201,6 @@ export function CheckoutProvider({ children }: CheckoutProps) {
   ]);
 
   const updateCheckoutDetails = async (details: Partial<CheckoutDetails>) => {
-    console.log('billing from updateCheckoutdetails: ');
     const { billing, shipping } = details;
 
     if (billing || shipping) {
@@ -245,7 +244,6 @@ export function CheckoutProvider({ children }: CheckoutProps) {
   };
 
   const createOrder = useCallback(async (details: CreateOrderInput) => {
-    console.log('details: ', details);
     const { order } = await apiCall<{ order: Order }>('/api/create-order', {
       method: 'POST',
       body: JSON.stringify(details),

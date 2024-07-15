@@ -44,13 +44,13 @@ const Page: React.FC<NavbarProps> = (props) => {
          ${
            navStyle
              ? 'hover:bg-white hover:text-slate-700 text-white'
-             : 'text-slate-700 bg-white border-b border-gray-300'
+             : 'text-slate-700 bg-white border-b border-stone-300'
          }
          `}
       onMouseOver={() => setHover(true)}
       onMouseOut={() => setHover(false)}
     >
-      <div className='m-auto w-full 2xl:w-[1440px] items-center px-[30px] py-2  flex justify-between'>
+      <div className='m-auto w-full 2xl:w-[1440px] items-center px-[30px] py-4 flex justify-between'>
         <Link href='/'>
           {navStyle ? (
             hover ? (
@@ -109,7 +109,7 @@ const Page: React.FC<NavbarProps> = (props) => {
           <SearchBar />
         </div>
 
-        <div className='flex gap-6'>
+        <div className='flex gap-6 items-end'>
           <Cart />
           <Link href='/my-account'>
             <UserCircle className='cursor-pointer h-5 w-5' />

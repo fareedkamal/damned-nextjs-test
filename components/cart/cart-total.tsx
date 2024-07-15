@@ -1,6 +1,6 @@
 import { useSession } from '@/client/SessionProvider';
 import { Cart, ShippingRate } from '@/graphql';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const CartTotal = ({ showDetails }: { showDetails?: Boolean | undefined }) => {
   const { cart: cartData } = useSession();

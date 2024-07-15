@@ -10,6 +10,9 @@ import { dispatch } from '@/redux/store';
 import { setCartClose, setCartLoading } from '@/redux/slices/cart-slice';
 import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
+import { IconButton } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { reloadBrowser } from '@/components/utils';
 
 export interface CartItemProps {
   item: CartItemInterface;
@@ -17,10 +20,12 @@ export interface CartItemProps {
 }
 
 export function CartItem({ item, priority }: CartItemProps) {
+  const { refresh, replace } = useRouter();
   const slug = item.product?.node?.slug as string;
   const productId = item.product?.node?.databaseId as number;
   const variationId = item.variation?.node?.databaseId || undefined;
   const maxQuantity = item?.variation?.node?.stockQuantity ?? 0;
+  const maxQuantityRef = useRef(maxQuantity);
   const productImageSrc = item?.variation?.node?.image?.sourceUrl ?? '';
   const productName = item?.product?.node.name ?? '';
   const productPrice = item?.total ?? '';
@@ -41,27 +46,49 @@ export function CartItem({ item, priority }: CartItemProps) {
 
   const updateQuantity = async () => {
     dispatch(setCartLoading(true));
-    const cart = await mutate('updateItemQuantities', { quantity });
+    try {
+      const cart = await mutate('updateItemQuantities', { quantity });
+      console.log(cart);
+    } catch (error) {
+      console.log(error);
+    }
     dispatch(setCartLoading(false));
   };
 
   const removeCartItem = async () => {
     dispatch(setCartLoading(true));
-    const cart = await mutate('removeItemsFromCart', {});
+    try {
+      await mutate('removeItemsFromCart', {});
+    } catch (error) {
+      console.log(error);
+      toast.error('Cart Session Expired.');
+      dispatch(setCartClose());
+      reloadBrowser();
+    }
     dispatch(setCartLoading(false));
   };
 
-  const handleChange = (e: any) => {
+  const handleChange = async (e: any) => {
+    dispatch(setCartLoading(true));
+    try {
+      await mutate('updateItemQuantities', { quantity });
+    } catch (error) {
+      console.log(error);
+      dispatch(setCartLoading(false));
+      return;
+    }
+    dispatch(setCartLoading(false));
+    console.log(maxQuantity);
     const value = Number(e.target.value);
-
     if (value <= 0) {
       toast.error('Min Quantity Required');
       setValue(1);
+      setQuantity(1);
       return;
     }
-    if (value > maxQuantity) {
-      toast.error('Stock Limit Reached');
-      setValue(maxQuantity);
+    if (value >= maxQuantity) {
+      toast.error(`Stock Limit Reached. Max Quantity is ${maxQuantity}`);
+      setValue(quantity);
       return;
     }
     setQuantity(value);
@@ -74,12 +101,21 @@ export function CartItem({ item, priority }: CartItemProps) {
       setQuantity((prevState) => --prevState);
     }
   };
-  const increaseQuantity = () => {
-    if (quantity === maxQuantity) {
-      toast.error('Stock Limit Reached');
-    } else {
-      setQuantity((prevState) => ++prevState);
+
+  const increaseQuantity = async () => {
+    dispatch(setCartLoading(true));
+    try {
+      await mutate('updateItemQuantities', { quantity });
+      console.log(maxQuantity);
+      if (maxQuantity === 0) {
+        toast.error('Stock Limit Reached');
+      } else {
+        setQuantity((prevState) => ++prevState);
+      }
+    } catch (error) {
+      console.log(error);
     }
+    dispatch(setCartLoading(false));
   };
 
   useEffect(() => {
@@ -113,9 +149,12 @@ export function CartItem({ item, priority }: CartItemProps) {
         <div className=' absolute top-0 right-0'>
           <p>{productPrice}</p>
         </div>
-        <div onClick={removeCartItem} className='absolute bottom-0 right-0'>
-          <Trash2 className='border-white hover:fill-red-600 h-5 w-5' />
-        </div>
+        <IconButton
+          onClick={removeCartItem}
+          className='absolute  bottom-0 right-0'
+        >
+          <Trash2 className='h-5 w-5 hover:text-red-600' />
+        </IconButton>
         <div>
           <Link
             onClick={() => dispatch(setCartClose())}
@@ -125,13 +164,11 @@ export function CartItem({ item, priority }: CartItemProps) {
           </Link>
           <p>{productVariation}</p>
         </div>
-        <div className='absolute bottom-0 left-0 flex w-fit border border-gray-300'>
-          <div
-            onClick={decreaseQuantity}
-            className='h-10 w-10 flex cursor-pointer'
-          >
+
+        <div className='absolute bottom-0 left-0 flex w-fit border border-stone-300'>
+          <IconButton onClick={decreaseQuantity} className='rounded-none'>
             <Minus className='h-5 w-5 m-auto' />
-          </div>
+          </IconButton>
           <div className='h-10 w-auto border-x border-gray-300 flex'>
             <input
               max={maxQuantity}
@@ -149,12 +186,9 @@ export function CartItem({ item, priority }: CartItemProps) {
               type='number'
             />
           </div>
-          <div
-            onClick={increaseQuantity}
-            className='h-10 w-10 flex cursor-pointer'
-          >
+          <IconButton onClick={increaseQuantity} className='rounded-none'>
             <Plus className='h-5 w-5 m-auto' />
-          </div>
+          </IconButton>
         </div>
       </div>
     </div>

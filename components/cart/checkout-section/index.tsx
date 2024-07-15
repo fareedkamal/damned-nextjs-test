@@ -1,6 +1,5 @@
 import { ArrowLeft, X } from 'lucide-react';
 import { text } from '@/app/styles';
-import Checkout from './checkout/checkout';
 import CartTotal from '../cart-total';
 import { dispatch } from '@/redux/store';
 import {
@@ -24,6 +23,7 @@ import { combinedSchema, onlyBillingSchema } from './checkout/helpers';
 import BillingForm from './checkout/billing-form';
 import ShippingForm from './checkout/shipping-form';
 import toast from 'react-hot-toast';
+import { Button } from '@mui/material';
 
 const CheckoutSection = () => {
   const diffShipAddress = useSelector(
@@ -31,21 +31,25 @@ const CheckoutSection = () => {
   );
   const { push } = useRouter();
   const { billing, shipping, updateCheckoutDetails } = useCheckoutDetails();
-  const { customer, updateCustomer, updateCart, cart: cartData } = useSession();
+  const { cart: cartData, updateCart } = useSession();
   const cart = cartData as Cart;
   const { setShippingLocale } = useOtherCartMutations<any>(sessionContext);
 
   const initialValues = { billing: billing, shipping: shipping };
 
   const handleSubmit = async (values: any) => {
+    dispatch(setCartLoading(true));
     try {
-      dispatch(setCartLoading(true));
-
-      await updateCheckoutDetails({
-        billing: values.billing,
-        shipping: values?.shipping ?? values.billing,
-      });
-
+      if (diffShipAddress) {
+        await updateCheckoutDetails({
+          billing: values.billing,
+          shipping: values.shipping,
+        });
+      } else {
+        await updateCheckoutDetails({
+          billing: values.billing,
+        });
+      }
       await setShippingLocale({
         country: diffShipAddress
           ? values.shipping.country
@@ -56,8 +60,7 @@ const CheckoutSection = () => {
           ? values.shipping.postcode
           : values.billing.postcode,
       });
-
-      await updateCart({
+      const flag = await updateCart({
         mutation: 'updateItemQuantities',
         input: {
           items: [
@@ -70,11 +73,10 @@ const CheckoutSection = () => {
       });
       dispatch(setCartLoading(false));
       dispatch(setCartSection('PAYMENT'));
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast.error('Cart session expired.');
+      toast.error(error.message);
       dispatch(setCartClose());
-      push('/shop');
     }
   };
 
@@ -120,14 +122,14 @@ const CheckoutSection = () => {
           {diffShipAddress ? <ShippingForm formik={formik} /> : null}
         </div>
       </div>
-      <button
+
+      <Button
         type='submit'
         onClick={() => formik.handleSubmit()}
-        //onClick={() => dispatch(setCartSection('CHECKOUT'))}
-        className='cursor-pointer p-8 text-white text-center w-full bg-gray-700'
+        className='py-8 bg-stone-500 w-full rounded-none text-white hover:bg-stone-600'
       >
-        PLACE ORDER
-      </button>
+        Confirm Details
+      </Button>
     </>
   );
 };

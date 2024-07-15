@@ -1,21 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ProductInfo } from '@/lib/graphql/type';
 import { text } from '@/app/styles';
-import { CircularProgress, TextField } from '@mui/material';
-import classNames from 'classnames';
+import { Button, CircularProgress, TextField } from '@mui/material';
 import { useCartMutations, useProduct } from '@woographql/react-hooks';
-import { sessionContext } from '@/client/SessionProvider';
-import { Product } from '@/graphql';
+import { sessionContext, useSession } from '@/client/SessionProvider';
 import { getRequiredAttributes } from './helpers';
 import toast from 'react-hot-toast';
+import { LoadingButton } from '@mui/lab';
 
-interface ProductDetailsProps {
-  product: any;
-}
-
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
+const ProductDetails = ({ product }: any) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
   const [selectedVariation, setSelectedVariation] = useState<any>(null);
@@ -25,11 +19,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     selectedAttribute,
     selectedVariation as any
   );
-  console.log(selectedVariation);
+
+  const productId = product.databaseId as number;
+  const variationId = (selectedVariation?.databaseId as number) ?? undefined;
+
   const { fetching, mutate, quantityFound } = useCartMutations(
     {
-      productId: product.databaseId,
-      variationId: selectedVariation?.databaseId ?? undefined,
+      productId,
+      variationId,
       variation,
     },
     sessionContext
@@ -43,35 +40,24 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const mutation = quantityFound ? 'updateItemQuantities' : 'addToCart';
 
   const addToCart = async () => {
-    if (selectedVariation.stockQuantity - quantityFound === 0) {
-      toast.error('Stock quantity exceeded');
-      return;
-    }
+    setExecuting(true);
     try {
-      setExecuting(true);
       const cart = await mutate(mutation, {
         quantity: mutation === 'updateItemQuantities' ? quantity + 1 : quantity,
       });
-      console.log(cart);
-      setExecuting(false);
-
       if (!cart) {
         toast.error('Error while adding to cart');
+        return;
       }
-
-      if (mutation === 'addToCart') {
-        toast.success('Added to cart');
-      } else {
-        toast.success('Cart updated');
-      }
-    } catch (error) {
-      console.log('Error while adding to cart');
+      toast.success(`${selectedVariation.name} is added to cart`);
+    } catch (error: any) {
+      console.log(error.message);
+      toast.error(error.message);
     }
+    setExecuting(false);
   };
 
   useEffect(() => {
-    console.log(quantityFound);
-    console.log(selectedVariation);
     if (quantityFound) {
       setQuantity(quantityFound);
     } else {
@@ -125,28 +111,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             Join the waitlist to be emailed when this product becomes available
           </p>
           <TextField type='email' size='small' />
-          <button className='px-5 py-2 bg-stone-400 text-white '>
-            JOIN WAITLIST
-          </button>
+          <Button className='py-2 px-8 bg-stone-400 w-fit text-white hover:bg-stone-600'>
+            ADD TO WISHLIST
+          </Button>
         </div>
       ) : null}
 
-      <button
-        className={classNames(
-          'text-white px-8 py-4 w-[150px] text-nowrap bg-stone-400 flex items-center justify-center hover:bg-stone-300 focus:outline-none',
-          {
-            'cursor-not-allowed': cartButtonDisabled,
-          }
-        )}
+      <LoadingButton
         onClick={addToCart}
+        loading={executing}
         disabled={cartButtonDisabled}
+        className='py-2 px-8 bg-stone-400 w-fit text-white hover:bg-stone-600'
       >
-        {executing ? (
-          <CircularProgress sx={{ fontSize: 5 }} color='inherit' />
-        ) : (
-          'ADD TO CART'
-        )}
-      </button>
+        ADD TO CART
+      </LoadingButton>
 
       <div dangerouslySetInnerHTML={{ __html: product.description }} />
     </div>

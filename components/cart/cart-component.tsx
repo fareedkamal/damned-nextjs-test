@@ -3,7 +3,7 @@ import { text } from '@/app/styles';
 import { dispatch } from '@/redux/store';
 import { setCartClose, setCartSection } from '@/redux/slices/cart-slice';
 import { useSelector } from 'react-redux';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, IconButton } from '@mui/material';
 import { CheckoutProvider } from '@/client/CheckoutProvider';
 import CartItemsSection from './cart-items-section';
 import CheckoutSection from './checkout-section';
@@ -29,15 +29,15 @@ const CartComponent = () => {
   return (
     <div className='relative flex flex-col w-full h-full bg-white'>
       <>
-        <div
+        <IconButton
           onClick={() => {
             dispatch(setCartClose());
             dispatch(setCartSection('CART'));
           }}
-          className='absolute top-0 right-0 border-x p-2 cursor-pointer'
+          className='absolute top-0 right-0 p-2'
         >
           <X />
-        </div>
+        </IconButton>
 
         {cartLoading ? (
           <div className='absolute bg-[#ffffff75] z-[999] h-full w-full flex'>

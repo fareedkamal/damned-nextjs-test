@@ -28,9 +28,6 @@ const cartSlice = createSlice({
     setCartSection: (state, action) => {
       state.cartSection = action.payload;
     },
-    setCheckoutSuccess: (state) => {
-      state.checkoutSuccess = true;
-    },
   },
 });
 
@@ -40,7 +37,6 @@ export const {
   setCartLoading,
   setDiffShipAddress,
   setCartSection,
-  setCheckoutSuccess,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

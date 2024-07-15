@@ -1,4 +1,3 @@
-// import type { Metadata } from "next";
 import Navbar from '@/components/navbar/page';
 import './globals.css';
 import FooterBar from '@/components/footer/page';
@@ -17,10 +16,11 @@ export default function RootLayout({
       <body suppressHydrationWarning={true}>
         <ReduxProvider>
           <SessionProvider>
-            <Navbar />
-
-            {children}
-            <FooterBar />
+            <div className='flex flex-col w-full h-screen'>
+              <Navbar />
+              <div className='flex-1'>{children}</div>
+              <FooterBar />
+            </div>
           </SessionProvider>
         </ReduxProvider>
         <Toaster />

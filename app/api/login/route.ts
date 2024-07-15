@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { print } from 'graphql';
 
 import {
+  Customer,
+  CustomerToOrderConnection,
   GetSessionDocument,
   GetSessionQuery,
   LoginDocument,
@@ -9,9 +11,12 @@ import {
   RegisterCustomerInput,
   RegisterDocument,
   RegisterMutation,
+  RootQueryToOrderConnection,
+  fetchOrders,
   getClient,
+  ordersDocument,
+  ordersQuery,
 } from '@/graphql';
-import getOrders from '@/lib/graphql/orders/query';
 
 type RequestBody = (
   | {
@@ -46,6 +51,7 @@ export async function POST(request: Request) {
     let refreshToken: string;
     if (mutation === 'login') {
       const { username, password } = input;
+
       if (!username || !password) {
         return NextResponse.json(
           {
@@ -66,6 +72,7 @@ export async function POST(request: Request) {
           },
         }
       );
+
       if (!data?.login) {
         return NextResponse.json(
           { errors: { message: 'Login failed.' } },
@@ -74,7 +81,9 @@ export async function POST(request: Request) {
       }
 
       authToken = data?.login.authToken as string;
+
       refreshToken = data?.login.refreshToken as string;
+
       if (!authToken || !refreshToken) {
         return NextResponse.json(
           { errors: { message: 'Failed to retrieve credentials.' } },
@@ -158,6 +167,7 @@ export async function POST(request: Request) {
     }
 
     const cart = sessionData?.cart;
+
     if (!cart) {
       return NextResponse.json(
         { errors: { message: 'Failed to retrieve cart data.' } },
@@ -167,6 +177,7 @@ export async function POST(request: Request) {
 
     const sessionToken =
       (headers.get('woocommerce-session') as string) || customer.sessionToken;
+
     if (!sessionToken) {
       return NextResponse.json(
         { errors: { message: 'Failed to retrieve session token.' } },
@@ -174,35 +185,62 @@ export async function POST(request: Request) {
       );
     }
 
-    const orders: any = await getOrders(customer?.databaseId as number);
-    customer.orders = orders as any;
+    const getOrdersClient = getClient();
+    if (!process.env.CREATE_ORDER_PASSWORD) {
+      return NextResponse.json(
+        {
+          errors: {
+            message:
+              'System credentials missing. Please contact the administrator.',
+          },
+        },
+        { status: 500 }
+      );
+    }
+
+    getOrdersClient.setHeaders({
+      Authorization: `Basic ${process.env.CREATE_ORDER_PASSWORD}`,
+    });
+
+    const { orders } = await getOrdersClient.request<ordersQuery>(
+      ordersDocument,
+      {
+        where: { customerId: customer?.databaseId as number },
+      }
+    );
+
+    const customerWithOrders = {
+      ...customer,
+      orders: orders,
+    } as Customer;
 
     return NextResponse.json({
       authToken,
       refreshToken,
       sessionToken,
-      customer,
+      customer: customerWithOrders,
       cart,
     });
   } catch (err) {
-    console.log(err);
+    const error = err as any;
+
+    const errors: any[] = error?.response?.errors ?? [];
+    const errorMessage = errors[0]?.message ?? '';
+
+    console.log('error message\n\n', errorMessage);
+
     let message: string;
+
     let status: number;
+
     switch (true) {
-      case (err as Error).message.includes(
-        'An account is already registered with your email address'
-      ):
-        message =
-          'An account is already registered with your email address. Please login.';
+      case errorMessage.includes('invalid_email'):
+        message = 'No user registered with the email.';
         status = 409;
         break;
-      case (err as Error).message.includes('The user could not be logged in.'):
+      case errorMessage.includes('incorrect_password'):
         message = 'Invalid username or password. Please try again.';
         status = 401;
-        break;
-      case (err as Error).message.includes('You are already logged in.'):
-        message = 'You are already logged in.';
-        status = 409;
         break;
       default:
         message = 'Sorry, something with wrong. Please contact administrator.';
