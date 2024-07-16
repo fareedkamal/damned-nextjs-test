@@ -41,6 +41,7 @@ const ProductDetails = ({ product }: any) => {
   );
 
   const cartButtonDisabled =
+    fetching ||
     executing ||
     selectedVariation?.stockStatus === 'OUT_OF_STOCK' ||
     !selectedVariation;
