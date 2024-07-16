@@ -28,7 +28,10 @@ import { Address } from '@/client/AddressForm';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
-import { onlyBillingSchema } from '@/components/cart/checkout-section/checkout/helpers';
+import {
+  billingSchema,
+  onlyBillingSchema,
+} from '@/components/cart/checkout-section/checkout/helpers';
 
 const BillingForm = () => {
   const { push } = useRouter();
@@ -36,11 +39,17 @@ const BillingForm = () => {
   const { billing } = customer as Customer;
 
   const handleSubmit = async (values: any) => {
+    if (billingStates.length !== 0 && values.billing.state === '') {
+      toast.error('State is required');
+      return;
+    }
     try {
       await updateCustomer({
         mutation: 'updateCustomer',
         input: { billing: values.billing },
       });
+      push('/my-account/edit-address');
+      toast.success('Billing address updated.');
     } catch (error) {
       console.log(error);
     }

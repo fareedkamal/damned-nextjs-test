@@ -34,15 +34,22 @@ import {
 } from '@/components/cart/checkout-section/checkout/helpers';
 
 const EditShipping = () => {
+  const { push } = useRouter();
   const { customer, updateCustomer } = useSession();
   const { shipping } = customer as Customer;
 
   const handleSubmit = async (values: any) => {
+    if (shippingStates.length !== 0 && values.shipping.state === '') {
+      toast.error('State is required');
+      return;
+    }
     try {
       await updateCustomer({
         mutation: 'updateCustomer',
         input: { shipping: values.shipping },
       });
+      toast.success('Shipping address updated.');
+      push('/my-account/edit-address');
     } catch (error) {
       console.log(error);
     }

@@ -33,7 +33,7 @@ const AccountMenu = () => {
   };
 
   return (
-    <div className='font-medium flex flex-row md:flex-col gap-2 w-full md:w-[200px] flex-wrap mb-10 md:mb-0'>
+    <div className='font-medium flex flex-row md:flex-col gap-2 w-full md:w-[300px] flex-wrap mb-10 md:mb-0'>
       <Link className='w-fit' href={'/my-account'}>
         Dashboard
       </Link>

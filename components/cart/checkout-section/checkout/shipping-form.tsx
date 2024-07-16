@@ -1,7 +1,4 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { useFormik } from 'formik';
-
-import { sessionContext, useSession } from '@/client/SessionProvider';
 import {
   FormControl,
   FormHelperText,
@@ -10,25 +7,8 @@ import {
   Select,
   TextField,
 } from '@mui/material';
-import toast from 'react-hot-toast';
-import { useCheckoutDetails } from '@/client/CheckoutProvider';
 import { useCountries } from '@/hooks/useCountries';
-import {
-  AddressFieldsFragment,
-  Cart,
-  CountriesEnum,
-  CountryState,
-} from '@/graphql';
-import { billingSchema } from './helpers';
-import {
-  useCartMutations,
-  useOtherCartMutations,
-} from '@woographql/react-hooks';
-import { dispatch } from '@/redux/store';
-import { setCartClose, setCartLoading } from '@/redux/slices/cart-slice';
-import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { Address } from '@/client/AddressForm';
+import { CountriesEnum } from '@/graphql';
 
 const ShippingForm = ({ formik }: any) => {
   const shippingCountry = formik.values.shipping.country as CountriesEnum;
@@ -37,10 +17,14 @@ const ShippingForm = ({ formik }: any) => {
     useCountries(shippingCountry);
 
   useEffect(() => {
-    if (prevShippingCountry.current !== shippingCountry) {
-      formik.setFieldValue('shipping.state', '');
+    if (shippingStates && prevShippingCountry.current !== shippingCountry) {
+      formik.setFieldValue(
+        'shipping.state',
+        shippingStates.length === 0 ? ' ' : ''
+      );
+      prevShippingCountry.current = shippingCountry;
     }
-  }, [shippingCountry]);
+  }, [shippingStates]);
 
   return (
     <div className=' flex flex-col gap-4'>

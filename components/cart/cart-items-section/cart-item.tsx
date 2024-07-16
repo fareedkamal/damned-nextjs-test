@@ -20,7 +20,6 @@ export interface CartItemProps {
 }
 
 export function CartItem({ item, priority }: CartItemProps) {
-  const { refresh, replace } = useRouter();
   const slug = item.product?.node?.slug as string;
   const productId = item.product?.node?.databaseId as number;
   const variationId = item.variation?.node?.databaseId || undefined;
@@ -39,15 +38,13 @@ export function CartItem({ item, priority }: CartItemProps) {
     { productId, variationId },
     sessionContext
   );
-
   const [quantity, setQuantity] = useState<number>(quantityFound);
   const [value, setValue] = useState<number>(quantityFound);
 
   const updateQuantity = async () => {
     dispatch(setCartLoading(true));
     try {
-      const cart = await mutate('updateItemQuantities', { quantity });
-      console.log(cart);
+      await mutate('updateItemQuantities', { quantity });
     } catch (error) {
       console.log(error);
     }
@@ -84,14 +81,13 @@ export function CartItem({ item, priority }: CartItemProps) {
       await mutate('updateItemQuantities', { quantity });
     } catch (error) {
       console.log(error);
-      dispatch(setCartLoading(false));
-      return;
     }
     dispatch(setCartLoading(false));
 
-    console.log(quantityLeft);
-    if (value >= quantityLeft) {
-      toast.error(`Stock Limit Reached. Max Quantity is ${quantityLeft}`);
+    if (value >= quantityLeft + quantity - 1) {
+      toast.error(
+        `Stock Limit Reached. ${quantityLeft} items remaining in stock.`
+      );
       setValue(quantity);
       return;
     }
@@ -110,9 +106,8 @@ export function CartItem({ item, priority }: CartItemProps) {
     dispatch(setCartLoading(true));
     try {
       await mutate('updateItemQuantities', { quantity });
-      console.log(quantityLeft);
-      if (quantityLeft === 0) {
-        toast.error('Stock Limit Reached');
+      if (quantityLeft === 1) {
+        toast.error(`Stock Limit Reached. ${quantityLeft} items left in stock`);
       } else {
         setQuantity((prevState) => ++prevState);
       }

@@ -7,7 +7,7 @@ import {
   setCartLoading,
   setCartSection,
 } from '@/redux/slices/cart-slice';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { setDiffShipAddress } from '@/redux/slices/cart-slice';
 import {
@@ -15,29 +15,39 @@ import {
   useCheckoutDetails,
 } from '@/client/CheckoutProvider';
 import { useRouter } from 'next/navigation';
-import { sessionContext, useSession } from '@/client/SessionProvider';
+import { Data, sessionContext, useSession } from '@/client/SessionProvider';
 import { useOtherCartMutations } from '@woographql/react-hooks';
 import { useFormik } from 'formik';
-import { Cart } from '@/graphql';
+import { Cart, CountriesEnum } from '@/graphql';
 import { combinedSchema, onlyBillingSchema } from './checkout/helpers';
 import BillingForm from './checkout/billing-form';
 import ShippingForm from './checkout/shipping-form';
 import toast from 'react-hot-toast';
 import { Button } from '@mui/material';
+import { useCountries } from '@/hooks/useCountries';
+import { reloadBrowser } from '@/components/utils';
 
 const CheckoutSection = () => {
   const diffShipAddress = useSelector(
     (state: any) => state.cartSlice.diffShipAddress
   );
-  const { push } = useRouter();
   const { billing, shipping, updateCheckoutDetails } = useCheckoutDetails();
   const { cart: cartData, updateCart } = useSession();
   const cart = cartData as Cart;
-  const { setShippingLocale } = useOtherCartMutations<any>(sessionContext);
+  const { setShippingLocale } = useOtherCartMutations<Data>(sessionContext);
 
   const initialValues = { billing: billing, shipping: shipping };
 
   const handleSubmit = async (values: any) => {
+    // if (billingStates.length !== 0 && values.billing.state === '') {
+    //   toast.error('State is required in billing details');
+    //   return;
+    // }
+    // if (diffShipAddress&& shippingStates.length !== 0 && values.shipping.state === '') {
+    //   toast.error('State is required in shipping details');
+    //   return;
+    // }
+
     dispatch(setCartLoading(true));
     try {
       if (diffShipAddress) {
@@ -60,7 +70,8 @@ const CheckoutSection = () => {
           ? values.shipping.postcode
           : values.billing.postcode,
       });
-      const flag = await updateCart({
+
+      await updateCart({
         mutation: 'updateItemQuantities',
         input: {
           items: [
@@ -71,12 +82,13 @@ const CheckoutSection = () => {
           ],
         },
       });
+
       dispatch(setCartLoading(false));
       dispatch(setCartSection('PAYMENT'));
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
-      toast.error(error.message);
-      dispatch(setCartClose());
+      toast.error('Cart Session Expired');
+      reloadBrowser();
     }
   };
 

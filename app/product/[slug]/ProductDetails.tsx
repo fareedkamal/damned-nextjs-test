@@ -8,17 +8,25 @@ import { sessionContext, useSession } from '@/client/SessionProvider';
 import { getRequiredAttributes } from './helpers';
 import toast from 'react-hot-toast';
 import { LoadingButton } from '@mui/lab';
+import { Cart, CartItem } from '@/graphql';
 
 const ProductDetails = ({ product }: any) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
+  //const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
   const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [executing, setExecuting] = useState<any>(false);
+  const { cart, fetching: sessionFetching } = useSession();
 
-  const variation = getRequiredAttributes(
-    selectedAttribute,
-    selectedVariation as any
+  const cartItems = cart?.contents?.nodes as CartItem[];
+  const isInCart = cartItems?.find(
+    (item: CartItem) => item.variation?.node?.id === selectedVariation?.id
   );
+  const quantityLeft: any = isInCart?.variation?.node?.stockQuantity;
+
+  // const variation = getRequiredAttributes(
+  //   selectedAttribute,
+  //   selectedVariation as any
+  // );
 
   const productId = product.databaseId as number;
   const variationId = (selectedVariation?.databaseId as number) ?? undefined;
@@ -27,7 +35,7 @@ const ProductDetails = ({ product }: any) => {
     {
       productId,
       variationId,
-      variation,
+      //variation,
     },
     sessionContext
   );
@@ -41,18 +49,25 @@ const ProductDetails = ({ product }: any) => {
 
   const addToCart = async () => {
     setExecuting(true);
+
     try {
-      const cart = await mutate(mutation, {
+      if (isInCart) {
+        await mutate('updateItemQuantities', { quantity });
+        if (quantityLeft === 1 || quantityLeft === null) {
+          toast.error(
+            `Stock Limit Reached. ${quantityLeft ?? 0} items left in stock`
+          );
+          setExecuting(false);
+          return;
+        }
+      }
+
+      await mutate(mutation, {
         quantity: mutation === 'updateItemQuantities' ? quantity + 1 : quantity,
       });
-      if (!cart) {
-        toast.error('Error while adding to cart');
-        return;
-      }
       toast.success(`${selectedVariation.name} is added to cart`);
-    } catch (error: any) {
-      console.log(error.message);
-      toast.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
     setExecuting(false);
   };
@@ -83,10 +98,10 @@ const ProductDetails = ({ product }: any) => {
                 name={option.name}
                 onChange={() => {
                   setSelectedVariation(option);
-                  setSelectedAttribute({
-                    [option.attributes.nodes[0].label]:
-                      option.attributes.nodes[0].value,
-                  });
+                  // setSelectedAttribute({
+                  //   [option.attributes.nodes[0].label]:
+                  //     option.attributes.nodes[0].value,
+                  // });
                 }}
                 className='w-4 h-4 border-gray-300 focus:ring-2 focus:ring-stone-300 dark:focus:ring-stone-600 dark:focus:bg-stone-600 dark:bg-gray-700 dark:border-gray-600'
               />

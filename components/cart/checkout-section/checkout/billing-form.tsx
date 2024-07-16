@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { useFormik } from 'formik';
-
 import { sessionContext, useSession } from '@/client/SessionProvider';
 import {
   FormControl,
@@ -19,17 +18,6 @@ import {
   CountriesEnum,
   CountryState,
 } from '@/graphql';
-import { billingSchema } from './helpers';
-import {
-  useCartMutations,
-  useOtherCartMutations,
-} from '@woographql/react-hooks';
-import { dispatch } from '@/redux/store';
-import { setCartClose, setCartLoading } from '@/redux/slices/cart-slice';
-import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { Address } from '@/client/AddressForm';
-import CartTotal from '../../cart-total';
 
 const BillingForm = ({ formik }: any) => {
   const billingCountry = formik.values.billing.country as CountriesEnum;
@@ -39,10 +27,14 @@ const BillingForm = ({ formik }: any) => {
     useCountries(billingCountry);
 
   useEffect(() => {
-    if (prevBillingCountry.current !== billingCountry) {
-      formik.setFieldValue('billing.state', '');
+    if (billingStates && prevBillingCountry.current !== billingCountry) {
+      formik.setFieldValue(
+        'billing.state',
+        billingStates.length === 0 ? ' ' : ''
+      );
+      prevBillingCountry.current = billingCountry;
     }
-  }, [billingCountry]);
+  }, [billingStates]);
 
   return (
     <div className=' flex flex-col gap-4'>
