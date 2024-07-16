@@ -39,10 +39,6 @@ const BillingForm = () => {
   const { billing } = customer as Customer;
 
   const handleSubmit = async (values: any) => {
-    if (billingStates.length !== 0 && values.billing.state === '') {
-      toast.error('State is required');
-      return;
-    }
     try {
       await updateCustomer({
         mutation: 'updateCustomer',
@@ -87,10 +83,14 @@ const BillingForm = () => {
     useCountries(billingCountry);
 
   useEffect(() => {
-    if (prevBillingCountry.current !== billingCountry) {
-      formik.setFieldValue('billing.state', '');
+    if (billingStates && prevBillingCountry.current !== billingCountry) {
+      formik.setFieldValue(
+        'billing.state',
+        billingStates.length === 0 ? ' ' : ''
+      );
+      prevBillingCountry.current = billingCountry;
     }
-  }, [billingCountry]);
+  }, [billingStates]);
 
   return (
     <form onSubmit={formik.handleSubmit}>

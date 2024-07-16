@@ -49,7 +49,6 @@ const EditShipping = () => {
         input: { shipping: values.shipping },
       });
       toast.success('Shipping address updated.');
-      push('/my-account/edit-address');
     } catch (error) {
       console.log(error);
     }
@@ -84,10 +83,14 @@ const EditShipping = () => {
     useCountries(shippingCountry);
 
   useEffect(() => {
-    if (prevShippingCountry.current !== shippingCountry) {
-      formik.setFieldValue('shipping.state', '');
+    if (shippingStates && prevShippingCountry.current !== shippingCountry) {
+      formik.setFieldValue(
+        'shipping.state',
+        shippingStates.length === 0 ? ' ' : ''
+      );
+      prevShippingCountry.current = shippingCountry;
     }
-  }, [shippingCountry]);
+  }, [shippingStates]);
 
   return (
     <form onSubmit={formik.handleSubmit}>
