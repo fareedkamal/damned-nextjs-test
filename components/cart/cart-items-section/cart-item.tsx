@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useCartMutations } from '@woographql/react-hooks';
-import { CartItem as CartItemInterface, StockStatusEnum } from '@/graphql';
+import {
+  Cart,
+  CartItem as CartItemInterface,
+  StockStatusEnum,
+} from '@/graphql';
 
-import { sessionContext } from '@/client/SessionProvider';
+import { sessionContext, useSession } from '@/client/SessionProvider';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { dispatch } from '@/redux/store';
@@ -47,6 +51,7 @@ export function CartItem({ item, priority }: CartItemProps) {
       await mutate('updateItemQuantities', { quantity });
     } catch (error) {
       console.log(error);
+      reloadBrowser();
     }
     dispatch(setCartLoading(false));
   };
@@ -75,22 +80,6 @@ export function CartItem({ item, priority }: CartItemProps) {
       setQuantity(1);
       return;
     }
-
-    dispatch(setCartLoading(true));
-    try {
-      await mutate('updateItemQuantities', { quantity });
-    } catch (error) {
-      console.log(error);
-    }
-    dispatch(setCartLoading(false));
-
-    if (value >= quantityLeft + quantity - 1) {
-      toast.error(
-        `Stock Limit Reached. ${quantityLeft} items remaining in stock.`
-      );
-      setValue(quantity);
-      return;
-    }
     setQuantity(value);
   };
 
@@ -103,18 +92,7 @@ export function CartItem({ item, priority }: CartItemProps) {
   };
 
   const increaseQuantity = async () => {
-    dispatch(setCartLoading(true));
-    try {
-      await mutate('updateItemQuantities', { quantity });
-      if (quantityLeft === 1) {
-        toast.error(`Stock Limit Reached. ${quantityLeft} items left in stock`);
-      } else {
-        setQuantity((prevState) => ++prevState);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    dispatch(setCartLoading(false));
+    setQuantity((prevState) => ++prevState);
   };
 
   useEffect(() => {
@@ -126,6 +104,13 @@ export function CartItem({ item, priority }: CartItemProps) {
   useEffect(() => {
     setValue(quantityFound);
   }, [quantityFound]);
+
+  useEffect(() => {
+    if (quantityLeft <= 0) {
+      toast.error('Stock Limit reached.');
+      setQuantity(1);
+    }
+  }, [quantityLeft]);
 
   return (
     <div className='flex h-[150px] p-4 gap-4 '>

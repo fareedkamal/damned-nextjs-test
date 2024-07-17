@@ -17,81 +17,47 @@ import { getRequiredAttributes } from './helpers';
 import toast from 'react-hot-toast';
 import { LoadingButton } from '@mui/lab';
 import { Cart, CartItem } from '@/graphql';
+import { reloadBrowser } from '@/components/utils';
 
 const ProductDetails = ({ product }: any) => {
-  const [quantity, setQuantity] = useState(1);
-  //const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
   const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [executing, setExecuting] = useState<any>(false);
-  const { cart, fetching: sessionFetching } = useSession();
-
-  const cartItems = cart?.contents?.nodes as CartItem[];
-  const isInCart = cartItems?.find(
-    (item: CartItem) => item.variation?.node?.id === selectedVariation?.id
-  );
-  const quantityLeft: any = isInCart?.variation?.node?.stockQuantity;
-
-  // const variation = getRequiredAttributes(
-  //   selectedAttribute,
-  //   selectedVariation as any
-  // );
-
+  const { fetching: fetchingSessionData } = useSession();
   const productId = product.databaseId as number;
   const variationId = (selectedVariation?.databaseId as number) ?? undefined;
-
   const { fetching, mutate, quantityFound } = useCartMutations(
     {
       productId,
       variationId,
-      //variation,
     },
     sessionContext
   );
 
   const cartButtonDisabled =
     fetching ||
+    fetchingSessionData ||
     executing ||
     selectedVariation?.stockStatus === 'OUT_OF_STOCK' ||
     !selectedVariation;
 
-  const mutation = quantityFound ? 'updateItemQuantities' : 'addToCart';
-
   const addToCart = async () => {
     setExecuting(true);
-
     try {
-      if (isInCart) {
-        await mutate('updateItemQuantities', { quantity });
-        if (quantityLeft === 1 || quantityLeft === null) {
-          toast.error(
-            `Stock Limit Reached. ${quantityLeft ?? 0} items left in stock`
-          );
-          setExecuting(false);
-          return;
-        }
+      if (quantityFound) {
+        toast.success(`${selectedVariation.name} is already added to cart`);
+        setExecuting(false);
+        return;
       }
-
-      await mutate(mutation, {
-        quantity: mutation === 'updateItemQuantities' ? quantity + 1 : quantity,
+      await mutate('addToCart', {
+        quantity: 1,
       });
       toast.success(`${selectedVariation.name} is added to cart`);
     } catch (error) {
       console.log(error);
+      //reloadBrowser();
     }
     setExecuting(false);
   };
-
-  useEffect(() => {
-    if (quantityFound) {
-      setQuantity(quantityFound);
-    } else {
-      setQuantity(1);
-    }
-  }, [quantityFound]);
-
-  // useEffect(() => {
-  //   console.log(selectedVariation);
-  // }, [selectedVariation]);
 
   return (
     <div className='flex flex-col gap-4'>
@@ -121,36 +87,6 @@ const ProductDetails = ({ product }: any) => {
           ))}
         </RadioGroup>
       </FormControl>
-      {/* 
-        <fieldset>
-          {product.variations.nodes.map((option: any) => (
-            <div className='flex  items-center mb-4' key={option.id}>
-              <input
-                id={option.databaseId}
-                type='radio'
-                checked={selectedVariation?.id === option.id}
-                name={option.name}
-                onChange={() => {
-                  setSelectedVariation(option);
-                  // setSelectedAttribute({
-                  //   [option.attributes.nodes[0].label]:
-                  //     option.attributes.nodes[0].value,
-                  // });
-                }}
-                className=''
-              />
-              <label
-                htmlFor={option.name}
-                className='block ms-2 text-sm font-medium text-gray-900 dark:text-gray-300'
-              >
-                <div className='flex flex-col'>
-                  <span>{option?.attributes.nodes[0]?.value ?? ''}</span>
-                  <span>{option.price}</span>
-                </div>
-              </label>
-            </div>
-          ))}
-        </fieldset> */}
 
       {selectedVariation?.stockStatus === 'OUT_OF_STOCK' ? (
         <div className=' flex flex-col gap-4 items-start'>
