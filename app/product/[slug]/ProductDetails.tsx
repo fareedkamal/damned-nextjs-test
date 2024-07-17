@@ -104,6 +104,7 @@ const ProductDetails = ({ product }: any) => {
         <RadioGroup>
           {product.variations.nodes.map((option: any) => (
             <FormControlLabel
+              key={option.id}
               sx={{ width: 'fit-content', mb: 2 }}
               onChange={() => {
                 setSelectedVariation(option);
