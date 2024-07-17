@@ -5,9 +5,17 @@ import { useEffect, useState } from 'react';
 import { Loader } from '@/components/utils';
 import { OrderDetails } from '@/app/(assist)/my-account/orders/[id]/page';
 import { useSearchParams } from 'next/navigation';
+import { dispatch } from '@/redux/store';
+import { setOrders } from '@/redux/slices/orders-slice';
 
 export function ThankYou({ orderId, okey }: any) {
-  const { cart, customer: customerData, updateCart } = useSession();
+  const {
+    cart,
+    customer: customerData,
+    updateCart,
+    fetching,
+    isAuthenticated,
+  } = useSession();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState<any>(true);
   const customer = customerData as Customer;
@@ -54,6 +62,12 @@ export function ThankYou({ orderId, okey }: any) {
       fetchData(Number(customer?.databaseId));
     }
   }, [customer?.id]);
+
+  useEffect(() => {
+    if (fetching === false && customer && isAuthenticated) {
+      dispatch(setOrders(null));
+    }
+  }, [fetching, customer, isAuthenticated]);
 
   return (
     <div>

@@ -13,12 +13,9 @@ const Orders = () => {
   const { customer } = useSession();
   const orders = useSelector((state: any) => state.ordersSlice.orders);
 
-  console.log(orders);
-
   const fetchData = async (id: number) => {
     const data: any = await fetchOrders({ where: { customerId: id } });
     if (data) {
-      console.log(data);
       dispatch(setOrders(data?.nodes));
     }
   };
@@ -32,7 +29,7 @@ const Orders = () => {
   return (
     <div className='w-full'>
       {!orders ? (
-        <Loader className='w-full mt-4' text='Fetching Orders...' />
+        <Loader className='w-full mt-4' />
       ) : (
         <div className='overflow-x-scroll no-scrollbar'>
           {orders && orders.length === 0 ? (
