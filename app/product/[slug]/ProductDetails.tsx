@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { text } from '@/app/styles';
-import { Button, CircularProgress, TextField } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  FormControl,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  TextField,
+} from '@mui/material';
 import { useCartMutations, useProduct } from '@woographql/react-hooks';
 import { sessionContext, useSession } from '@/client/SessionProvider';
 import { getRequiredAttributes } from './helpers';
@@ -81,6 +89,10 @@ const ProductDetails = ({ product }: any) => {
     }
   }, [quantityFound]);
 
+  // useEffect(() => {
+  //   console.log(selectedVariation);
+  // }, [selectedVariation]);
+
   return (
     <div className='flex flex-col gap-4'>
       <div>
@@ -88,7 +100,27 @@ const ProductDetails = ({ product }: any) => {
         <p className={`${text.lg} font-normal`}>{product.price}</p>
       </div>
 
-      <div className='flex flex-col font-semibold'>
+      <FormControl>
+        <RadioGroup>
+          {product.variations.nodes.map((option: any) => (
+            <FormControlLabel
+              sx={{ width: 'fit-content', mb: 2 }}
+              onChange={() => {
+                setSelectedVariation(option);
+              }}
+              checked={selectedVariation?.id === option.id}
+              control={<Radio />}
+              label={
+                <div>
+                  <p>{option?.attributes.nodes[0]?.value ?? ''}</p>
+                  <p>{option?.price ?? ''}</p>
+                </div>
+              }
+            />
+          ))}
+        </RadioGroup>
+      </FormControl>
+      {/* 
         <fieldset>
           {product.variations.nodes.map((option: any) => (
             <div className='flex  items-center mb-4' key={option.id}>
@@ -104,7 +136,7 @@ const ProductDetails = ({ product }: any) => {
                   //     option.attributes.nodes[0].value,
                   // });
                 }}
-                className='w-4 h-4 border-gray-300 focus:ring-2 focus:ring-stone-300 dark:focus:ring-stone-600 dark:focus:bg-stone-600 dark:bg-gray-700 dark:border-gray-600'
+                className=''
               />
               <label
                 htmlFor={option.name}
@@ -117,8 +149,7 @@ const ProductDetails = ({ product }: any) => {
               </label>
             </div>
           ))}
-        </fieldset>
-      </div>
+        </fieldset> */}
 
       {selectedVariation?.stockStatus === 'OUT_OF_STOCK' ? (
         <div className=' flex flex-col gap-4 items-start'>
