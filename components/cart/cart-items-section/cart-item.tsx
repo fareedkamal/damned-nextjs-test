@@ -155,7 +155,7 @@ export function CartItem({ item, priority }: CartItemProps) {
           </IconButton>
           <div className='h-10 w-auto border-x border-gray-300 flex'>
             <input
-              max={quantityLeft + quantity}
+              max={quantityLeft + quantity - 1}
               min={1}
               value={value}
               disabled={fetching}
