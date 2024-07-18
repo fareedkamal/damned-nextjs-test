@@ -22,6 +22,7 @@ export function ThankYou({ orderId, okey }: any) {
 
   const fetchData = async (id: number) => {
     const data: any = await fetchOrders({ where: { customerId: id } });
+
     if (data) {
       const order: Order = data?.nodes?.find(
         ({ databaseId, orderKey }) =>

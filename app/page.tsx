@@ -13,7 +13,7 @@ export default async function Home() {
       <DashboardBack />
       <HeroSection />
       <div className='bg-white w-full'>
-        <div className='2xl:w-[1440px] w-full px-[30px] m-auto'>
+        <div className='w-full px-8 m-auto'>
           <div className='py-[1em] md:py-[5em] flex gap-8 w-full flex-col items-center md:flex-row justify-center'>
             <div className='flex-1 flex justify-end'>
               <Image

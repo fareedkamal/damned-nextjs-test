@@ -5,12 +5,6 @@ import { fetchProducts } from '@/graphql';
 import Products from '@/components/shop/products-listing/products';
 
 const Edc: React.FC = async () => {
-  //const products = await fetchProducts('1143');
-
-  // const { nodes: initialProducts } = await fetchProducts({
-  //   first: 30,
-  //   where: { categoryId: 1143 },
-  // });
   return (
     <div>
       <div className='fixed h-screen w-screen overflow-hidden left-0 top-0 -z-50'>
@@ -29,7 +23,7 @@ const Edc: React.FC = async () => {
         </video>
       </div>
 
-      <div className='flex m-auto px-[30px] w-full 2xl:w-[1440px] h-[400px] md:h-[70vh]'>
+      <div className='flex m-auto px-8 w-full h-[400px] md:h-[70vh]'>
         <div className='text-white my-auto text-center md:text-left'>
           <p className='text-2xl md:text-3xl mb-2'>POCKET ART</p>
           <p className='text-base mb-4'>
@@ -39,10 +33,8 @@ const Edc: React.FC = async () => {
         </div>
       </div>
 
-      <div className='w-full bg-white'>
-        <div className='flex m-auto px-[30px] w-full 2xl:w-[1440px] py-[2em] md:py-[5em] '>
-          <Products id={1143} showPagination={true} />
-        </div>
+      <div className='flex m-auto px-8 min-h-[500px] h-full bg-white w-full'>
+        <Products id={1143} showPagination={true} />
       </div>
     </div>
   );

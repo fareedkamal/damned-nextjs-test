@@ -34,32 +34,29 @@ const CheckoutSection = () => {
   const { billing, shipping, updateCheckoutDetails } = useCheckoutDetails();
   const { cart: cartData, updateCart } = useSession();
   const cart = cartData as Cart;
+
   const { setShippingLocale } = useOtherCartMutations<Data>(sessionContext);
 
   const initialValues = { billing: billing, shipping: shipping };
 
   const handleSubmit = async (values: any) => {
-    // if (billingStates.length !== 0 && values.billing.state === '') {
-    //   toast.error('State is required in billing details');
-    //   return;
-    // }
-    // if (diffShipAddress&& shippingStates.length !== 0 && values.shipping.state === '') {
-    //   toast.error('State is required in shipping details');
-    //   return;
-    // }
-
     dispatch(setCartLoading(true));
     try {
+      let detialsUpdated: any;
       if (diffShipAddress) {
-        await updateCheckoutDetails({
+        detialsUpdated = await updateCheckoutDetails({
           billing: values.billing,
           shipping: values.shipping,
         });
       } else {
-        await updateCheckoutDetails({
+        detialsUpdated = await updateCheckoutDetails({
           billing: values.billing,
         });
       }
+      if (!detialsUpdated) {
+        reloadBrowser();
+      }
+
       await setShippingLocale({
         country: diffShipAddress
           ? values.shipping.country
@@ -71,7 +68,7 @@ const CheckoutSection = () => {
           : values.billing.postcode,
       });
 
-      await updateCart({
+      const cartUpdated = await updateCart({
         mutation: 'updateItemQuantities',
         input: {
           items: [
@@ -82,6 +79,8 @@ const CheckoutSection = () => {
           ],
         },
       });
+
+      console.log(cartUpdated);
 
       dispatch(setCartLoading(false));
       dispatch(setCartSection('PAYMENT'));

@@ -16,7 +16,7 @@ export default async function SideKid() {
           height={1000}
           alt=''
         />
-        <div className='absolute text-white w-full px-[30px] py-[2em] md:py-[5em] 2xl:w-[1440px] m-auto'>
+        <div className='absolute text-white w-full px-8 py-4 m-auto'>
           <p className={`${text.lg} mb-2`}>SIDEKICK PRY BARS</p>
           <p className={`${text.md} mb-2`}>FUNCTION X AESTHETIC</p>
           <p className={`${text.md}`}>
@@ -27,7 +27,7 @@ export default async function SideKid() {
           </p>
         </div>
       </div>
-      <div className='w-full px-[30px] py-[2em] md:py-[5em] 2xl:w-[1440px] m-auto'>
+      <div className='w-full px-8 py-8 m-auto'>
         <Products id={1270} showPagination={false} />
       </div>
       <div

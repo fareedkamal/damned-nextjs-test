@@ -4,8 +4,7 @@ import { fetchProducts } from '@/graphql';
 
 const FixedBladeKnives: React.FC = async () => {
   return (
-    <div className='w-full px-[30px] py-[2em] md:[5em] 2xl:w-[1440px] m-auto'>
-      <p className=''>Home / Fixed blade knives</p>
+    <div className='w-full h-full px-8 py-4 m-auto'>
       <Products id={1266} showPagination={true} />
     </div>
   );

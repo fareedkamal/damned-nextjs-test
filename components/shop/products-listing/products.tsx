@@ -5,7 +5,7 @@ import { fetchProducts } from '@/graphql';
 import ProductsList from './index';
 import { init } from '@graphql-codegen/cli';
 import { CircularProgress } from '@mui/material';
-import getOrders from '@/lib/graphql/orders/query';
+import { Loader } from '@/components/utils';
 
 const Products = ({
   id,
@@ -52,11 +52,7 @@ const Products = ({
       {products ? (
         <ProductsList data={products} showPagination={showPagination} />
       ) : (
-        <div className='flex w-full items-center h-[500px] justify-center'>
-          <div className='flex w-fit items-center gap-2'>
-            <CircularProgress color='inherit' />
-          </div>
-        </div>
+        <Loader className='w-full h-full' />
       )}
     </>
   );

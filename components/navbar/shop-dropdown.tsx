@@ -1,12 +1,13 @@
 import { text } from '@/app/styles';
-import { Box, Popover } from '@mui/material';
-import { ChevronDown } from 'lucide-react';
+import { Box, Popover, useMediaQuery } from '@mui/material';
+import { ChevronDown, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 const ShopDropdown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [popoverHovered, setPopoverHovered] = useState(false);
+  const isLargeScreen = useMediaQuery('(min-width:640px)');
 
   const handlePopoverOpen = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -29,15 +30,22 @@ const ShopDropdown = () => {
 
   const open = Boolean(anchorEl);
   return (
-    <div>
+    <>
       <Box
         aria-owns={open ? 'mouse-over-popover' : undefined}
         aria-haspopup='true'
         onMouseEnter={handlePopoverOpen}
-        className='flex items-center  hover:text-slate-400 gap-1 cursor-pointer'
+        className={`flex items-center ${text.md} gap-2 cursor-pointer `}
       >
-        SHOP
-        <ChevronDown className='h-3 w-3' />
+        {isLargeScreen ? (
+          <>
+            {' '}
+            SHOP
+            <ChevronDown className='h-3 w-3' />
+          </>
+        ) : (
+          <Menu />
+        )}
       </Box>
 
       <Popover
@@ -69,18 +77,21 @@ const ShopDropdown = () => {
       >
         <div className='p-6 bg-[#918484] flex justify-center gap-4 w-full flex-wrap'>
           <Link
+            onClick={() => setAnchorEl(null)}
             href='/shop/osiris-chef-knives'
             className={`${text.md} text-white font-medium hover:opacity-50`}
           >
             OSIRIS CHEF KNIFE
           </Link>
           <Link
+            onClick={() => setAnchorEl(null)}
             href='/shop/pocket-knives'
             className={`${text.md} text-white font-medium hover:opacity-50`}
           >
             POCKET KNIVES
           </Link>
           <Link
+            onClick={() => setAnchorEl(null)}
             href='/shop/fixed-blade-knives'
             className={`${text.md} text-white font-medium hover:opacity-50`}
           >
@@ -88,6 +99,7 @@ const ShopDropdown = () => {
           </Link>
           <Link
             href='/shop/edc'
+            onClick={() => setAnchorEl(null)}
             className={`${text.md} text-white font-medium hover:opacity-50`}
           >
             POCKET ART
@@ -95,13 +107,14 @@ const ShopDropdown = () => {
 
           <Link
             href='/shop/sidekick-pry-bars'
+            onClick={() => setAnchorEl(null)}
             className={`${text.md} text-white font-medium hover:opacity-50`}
           >
             SIDEKICK PRY BARS
           </Link>
         </div>
       </Popover>
-    </div>
+    </>
   );
 };
 

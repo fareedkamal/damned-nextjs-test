@@ -48,10 +48,16 @@ export function CartItem({ item, priority }: CartItemProps) {
   const updateQuantity = async () => {
     dispatch(setCartLoading(true));
     try {
-      await mutate('updateItemQuantities', { quantity });
+      const res = await mutate('updateItemQuantities', { quantity });
+      if (!res) {
+        reloadBrowser();
+      }
     } catch (error) {
+      toast.error('Cart Session Expired.');
       console.log(error);
-      reloadBrowser();
+      setTimeout(() => {
+        reloadBrowser();
+      }, 2000);
     }
     dispatch(setCartLoading(false));
   };
@@ -59,12 +65,16 @@ export function CartItem({ item, priority }: CartItemProps) {
   const removeCartItem = async () => {
     dispatch(setCartLoading(true));
     try {
-      await mutate('removeItemsFromCart', {});
+      const res = await mutate('removeItemsFromCart', {});
+      if (!res) {
+        reloadBrowser();
+      }
     } catch (error) {
-      console.log(error);
       toast.error('Cart Session Expired.');
-      dispatch(setCartClose());
-      reloadBrowser();
+      console.log(error);
+      setTimeout(() => {
+        reloadBrowser();
+      }, 2000);
     }
     dispatch(setCartLoading(false));
   };
@@ -76,8 +86,7 @@ export function CartItem({ item, priority }: CartItemProps) {
     }
     if (value <= 0) {
       toast.error('Min Quantity Required');
-      setValue(1);
-      setQuantity(1);
+      setValue(quantity);
       return;
     }
     setQuantity(value);
@@ -106,9 +115,12 @@ export function CartItem({ item, priority }: CartItemProps) {
   }, [quantityFound]);
 
   useEffect(() => {
+    console.log(quantityLeft);
     if (quantityLeft <= 0) {
-      toast.error('Stock Limit reached.');
-      setQuantity(1);
+      toast.error(
+        `Stock Limit reached. ${quantity + quantityLeft} items left in stock.`
+      );
+      setQuantity(quantity + quantityLeft);
     }
   }, [quantityLeft]);
 
@@ -149,27 +161,26 @@ export function CartItem({ item, priority }: CartItemProps) {
           <p>{productVariation}</p>
         </div>
 
-        <div className='absolute bottom-0 left-0 flex w-fit border border-stone-300'>
+        <div className='absolute h-10 bottom-0 left-0 flex w-fit border border-stone-300'>
           <IconButton onClick={decreaseQuantity} className='rounded-none'>
             <Minus className='h-5 w-5 m-auto' />
           </IconButton>
-          <div className='h-10 w-auto border-x border-gray-300 flex'>
-            <input
-              max={quantityLeft + quantity - 1}
-              min={1}
-              value={value}
-              disabled={fetching}
-              className='h-full w-full text-center focus:outline-none'
-              onChange={(e) => {
-                setValue(Number(e.target.value));
-              }}
-              onBlur={handleChange}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleChange(e);
-              }}
-              type='number'
-            />
-          </div>
+
+          <input
+            min={1}
+            value={value}
+            disabled={fetching}
+            className='h-full w-14 border-x border-stone-300 text-center focus:outline-none'
+            onChange={(e) => {
+              setValue(Number(e.target.value));
+            }}
+            onBlur={handleChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleChange(e);
+            }}
+            type='number'
+          />
+
           <IconButton onClick={increaseQuantity} className='rounded-none'>
             <Plus className='h-5 w-5 m-auto' />
           </IconButton>

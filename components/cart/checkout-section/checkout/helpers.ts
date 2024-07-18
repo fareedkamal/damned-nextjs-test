@@ -14,9 +14,7 @@ export const billingSchema = Yup.object().shape({
   company: Yup.string(),
   country: Yup.string().required('Country is required'),
   phone: Yup.string()
-    .matches(/^[0-9]+$/, 'Phone number must only contain digits')
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number can be at most 15 digits')
+    .matches(/^[0-9]+$/, 'Phone number must be digits')
     .required('Phone number is required'),
 });
 

@@ -11,7 +11,7 @@ import { useCheckoutDetails } from '@/client/CheckoutProvider';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader } from '@/components/utils';
+import { Loader, reloadBrowser } from '@/components/utils';
 import { Button } from '@mui/material';
 
 const PaymentSection = () => {
@@ -24,7 +24,7 @@ const PaymentSection = () => {
     coupons,
     createOrder,
   } = useCheckoutDetails();
-  const { push, refresh } = useRouter();
+  const { push } = useRouter();
   const [checkoutSuccess, setCheckoutSuccess] = useState<any>(null);
 
   const handleCheckout = async () => {
@@ -42,8 +42,12 @@ const PaymentSection = () => {
       });
 
       dispatch(setCartLoading(false));
+
       if (!order) {
         toast.error('Checkout session expired.');
+        setTimeout(() => {
+          reloadBrowser();
+        }, 2000);
         return;
       }
 
@@ -57,10 +61,12 @@ const PaymentSection = () => {
     } catch (error) {
       console.log(error);
       toast.error('Checkout session expired.');
-      dispatch(setCartLoading(false));
-      dispatch(setCartClose());
-      dispatch(setCartSection('CART'));
-      refresh();
+      setTimeout(() => {
+        reloadBrowser();
+      }, 2000);
+      // dispatch(setCartLoading(false));
+      // dispatch(setCartClose());
+      // dispatch(setCartSection('CART'));
     }
   };
 

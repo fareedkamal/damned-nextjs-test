@@ -25,6 +25,7 @@ const ProductDetails = ({ product }: any) => {
   const { fetching: fetchingSessionData } = useSession();
   const productId = product.databaseId as number;
   const variationId = (selectedVariation?.databaseId as number) ?? undefined;
+
   const { fetching, mutate, quantityFound } = useCartMutations(
     {
       productId,
@@ -48,16 +49,27 @@ const ProductDetails = ({ product }: any) => {
         setExecuting(false);
         return;
       }
-      await mutate('addToCart', {
+      const flag = await mutate('addToCart', {
         quantity: 1,
       });
+      if (!flag) {
+        reloadBrowser();
+        return;
+      }
       toast.success(`${selectedVariation.name} is added to cart`);
     } catch (error) {
       console.log(error);
-      //reloadBrowser();
+      toast.error('Cart Session Expired.');
+      setTimeout(() => {
+        reloadBrowser();
+      }, 2000);
     }
     setExecuting(false);
   };
+
+  useEffect(() => {
+    console.log(selectedVariation);
+  }, [selectedVariation]);
 
   return (
     <div className='flex flex-col gap-4'>
