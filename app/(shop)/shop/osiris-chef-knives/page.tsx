@@ -1,10 +1,14 @@
 import { text } from '@/app/styles';
 import OrisisMain from '@/components/shop/orisis/page';
 import ProductsList from '@/components/shop/products-listing';
-import Products from '@/components/shop/products-listing/products';
 import { Product, fetchProducts } from '@/graphql';
 
-const Orisis: React.FC = async () => {
+const Orisis = async () => {
+  const { nodes: products } = await fetchProducts({
+    first: 30,
+    where: { categoryId: 1269 },
+  });
+
   return (
     <div>
       <div className='fixed h-screen w-screen overflow-hidden top-0 -z-50'>
@@ -45,8 +49,7 @@ const Orisis: React.FC = async () => {
 
       <div className=' m-auto px-8 w-full bg-white '>
         <div className='py-[2em] md:py-[5em]'>
-          {/* <ProductsList data={initialProducts} showPagination={false} /> */}
-          <Products showPagination={false} id={1269} />
+          <ProductsList data={products} showPagination={false} />
         </div>
         <div className='h-auto lg:h-screen flex flex-col lg:flex-row py-[2em] md:py-[5em]'>
           <img

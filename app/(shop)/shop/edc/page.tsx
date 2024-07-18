@@ -1,10 +1,12 @@
-import EdcMain from '@/components/shop/edc/page';
-import EdcBack from '@/components/shop/edc/edcBack';
 import ProductsList from '@/components/shop/products-listing';
 import { fetchProducts } from '@/graphql';
-import Products from '@/components/shop/products-listing/products';
 
-const Edc: React.FC = async () => {
+const Edc = async () => {
+  const { nodes: products } = await fetchProducts({
+    first: 50,
+    where: { categoryId: 1143 },
+  });
+
   return (
     <div>
       <div className='fixed h-screen w-screen overflow-hidden left-0 top-0 -z-50'>
@@ -33,8 +35,8 @@ const Edc: React.FC = async () => {
         </div>
       </div>
 
-      <div className='flex m-auto px-8 min-h-[500px] h-full bg-white w-full'>
-        <Products id={1143} showPagination={true} />
+      <div className='flex m-auto px-8 min-h-[500px] h-full py-8 bg-white w-full'>
+        <ProductsList data={products} showPagination={true} />
       </div>
     </div>
   );

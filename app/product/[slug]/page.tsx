@@ -1,8 +1,5 @@
 import { type Product } from '@woographql/react-hooks';
-
 import { fetchProduct, ProductIdTypeEnum } from '@/graphql';
-import { Suspense } from 'react';
-import { ProductInfo } from '@/lib/graphql/type';
 import ProductDetails from './ProductDetails';
 import { ProductProvider } from '@/client/ProductProvider';
 import ImageCarousel from '@/components/carousel/page';
@@ -17,7 +14,7 @@ const ProductPage = async ({ params }: ProductPageProps) => {
   const { slug } = params;
   const product: any = await fetchProduct(slug, ProductIdTypeEnum.SLUG);
 
-  if (!slug || !product) return <h1>Page not found</h1>;
+  if (!slug || !product) return <h1>Product not found</h1>;
 
   let images = [
     product?.image?.sourceUrl ??
@@ -30,16 +27,14 @@ const ProductPage = async ({ params }: ProductPageProps) => {
   ];
 
   return (
-    <ProductProvider product={product as Product}>
-      <div className='w-full px-8 m-auto py-8 flex flex-col lg:flex-row gap-10'>
-        <div className='w-full lg:w-1/2'>
-          <ImageCarousel images={images} />
-        </div>
-        <div className='w-full lg:w-1/2 flex flex-col gap-5 py-5'>
-          <ProductDetails product={product} />
-        </div>
+    <div className='w-full px-8 m-auto py-8 flex flex-col lg:flex-row gap-10'>
+      <div className='w-full lg:w-1/2'>
+        <ImageCarousel images={images} />
       </div>
-    </ProductProvider>
+      <div className='w-full lg:w-1/2 flex flex-col gap-5 py-5'>
+        <ProductDetails product={product} />
+      </div>
+    </div>
   );
 };
 

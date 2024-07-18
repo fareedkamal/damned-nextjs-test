@@ -1,13 +1,20 @@
-import Products from '@/components/shop/products-listing/products';
 import { text } from '../styles';
+import { fetchProducts } from '@/graphql';
+import ProductsList from '@/components/shop/products-listing';
 
-const SearchPage = ({ searchParams }: any) => {
+const SearchPage = async ({ searchParams }: any) => {
   const { query } = searchParams;
+  const { nodes: products } = await fetchProducts({
+    first: 30,
+    where: { search: query ?? '' },
+  });
 
   return (
-    <div className='w-full px-[30px] py-[2em] md:[5em] 2xl:w-[1440px] m-auto'>
-      <p className={`${text.md} font-medium`}>Search results for {query}</p>
-      <Products search={query as any} showPagination={true} />
+    <div className='w-full px-8 py-4'>
+      <p
+        className={`${text.md} font-medium`}
+      >{`Search results for "${query}"`}</p>
+      <ProductsList data={products} showPagination={true} />
     </div>
   );
 };
