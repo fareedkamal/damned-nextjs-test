@@ -9,23 +9,22 @@ const urls: any = {
 };
 
 const DashboardBack = ({ page }: any) => {
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(false);
 
   return (
     <div className='fixed h-screen w-screen overflow-hidden top-0 -z-50'>
-      {loading ? (
+      {/* {loading ? (
         <div className='absolute bg-stone-950 h-full w-full flex'>
           <CircularProgress sx={{ color: 'white', mx: 'auto', mt: '40vh' }} />
         </div>
-      ) : null}
+      ) : null} */}
 
       <video
-        onLoadedData={() => setLoading(false)}
         loop
         autoPlay
         playsInline
         muted
-        className='w-full h-full object-cover'
+        className='w-full h-full object-cover bg-stone-950'
         src={urls[page]}
       >
         <source type='video/mp4' src={urls[page]} />
