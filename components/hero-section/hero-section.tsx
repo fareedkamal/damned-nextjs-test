@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const HeroSection: React.FC = () => {
   return (
-    <div className='flex m-auto px-8 w-full h-[400px] md:h-[70vh]'>
+    <div className='flex m-auto px-8 w-full h-[400px] md:h-screen'>
       <div className='text-white my-auto text-center md:text-left'>
         <p className={`${text.lg} md:text-3xl font-semibold mb-1`}>
           DAMNED DESIGNS

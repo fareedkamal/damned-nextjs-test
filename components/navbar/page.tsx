@@ -15,23 +15,18 @@ import ShopDropdown from './shop-dropdown';
 import Cart from '../cart';
 
 const Page = () => {
-  const [hover, setHover] = useState<boolean>();
-  const [openMenu, setOpenMenu] = useState<any>(false);
-  const [openSearch, setOpenSearch] = useState<any>(false);
-  const isLargeScreen = useMediaQuery('(min-width:640px)');
   const path = usePathname();
+
   const [navStyle, setNavStyle] = useState<Boolean>(
-    path === '/' ? true : false
+    path === '/' || path === '/shop/osiris-chef-knives' || path === '/shop/edc'
   );
 
   useEffect(() => {
-    if (isLargeScreen) {
-      setOpenMenu(false);
-    }
-  }, [isLargeScreen]);
-
-  useEffect(() => {
-    setNavStyle(path === '/' ? true : false);
+    setNavStyle(
+      path === '/' ||
+        path === '/shop/osiris-chef-knives' ||
+        path === '/shop/edc'
+    );
   }, [path]);
 
   return (
@@ -39,32 +34,20 @@ const Page = () => {
       className={`flex w-full transition-all duration-300 justify-between items-end py-4 px-8
          ${
            navStyle
-             ? 'hover:bg-white hover:text-slate-700 text-white'
+             ? ' text-white'
              : 'text-slate-700 bg-white border-b border-stone-300'
          }
          `}
-      onMouseOver={() => setHover(true)}
-      onMouseOut={() => setHover(false)}
     >
       <Link href='/'>
         {navStyle ? (
-          hover ? (
-            <Image
-              src='https://admin.damneddesigns.com/wp-content/uploads/Asset-14.png'
-              width={100}
-              height={100}
-              alt='this is mark'
-              className='w-8'
-            />
-          ) : (
-            <Image
-              src='https://admin.damneddesigns.com/wp-content/uploads/Asset-12.png'
-              width={100}
-              height={100}
-              alt='this is mark'
-              className='w-8'
-            />
-          )
+          <Image
+            src='https://admin.damneddesigns.com/wp-content/uploads/Asset-12.png'
+            width={100}
+            height={100}
+            alt='this is mark'
+            className='w-8'
+          />
         ) : (
           <Image
             src='https://admin.damneddesigns.com/wp-content/uploads/Asset-14.png'

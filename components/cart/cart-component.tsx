@@ -28,25 +28,27 @@ const CartComponent = () => {
 
   return (
     <div className='relative flex flex-col w-full h-full bg-white'>
-      <>
-        <IconButton
-          onClick={() => {
-            dispatch(setCartClose());
-            dispatch(setCartSection('CART'));
-          }}
-          className='absolute top-0 right-0 p-2'
-        >
-          <X />
-        </IconButton>
+      <IconButton
+        onClick={() => {
+          dispatch(setCartClose());
+          dispatch(setCartSection('CART'));
+        }}
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+        }}
+      >
+        <X />
+      </IconButton>
 
-        {cartLoading ? (
-          <div className='absolute bg-[#ffffff75] z-[999] h-full w-full flex'>
-            <CircularProgress className='m-auto' color='inherit' />
-          </div>
-        ) : null}
+      {cartLoading ? (
+        <div className='absolute bg-[#ffffff75] z-[999] h-full w-full flex'>
+          <CircularProgress className='m-auto' color='inherit' />
+        </div>
+      ) : null}
 
-        {getCartSection()}
-      </>
+      {getCartSection()}
     </div>
   );
 };

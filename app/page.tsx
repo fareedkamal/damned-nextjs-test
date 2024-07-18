@@ -10,7 +10,7 @@ import { text } from './styles';
 export default async function Home() {
   return (
     <main className='flex flex-col'>
-      <DashboardBack />
+      <DashboardBack page='home' />
       <HeroSection />
       <div className='bg-white w-full'>
         <div className='w-full px-8 m-auto'>

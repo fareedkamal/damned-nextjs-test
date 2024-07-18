@@ -7,7 +7,6 @@ import { useState } from 'react';
 const ShopDropdown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [popoverHovered, setPopoverHovered] = useState(false);
-  const isLargeScreen = useMediaQuery('(min-width:640px)');
 
   const handlePopoverOpen = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -37,15 +36,8 @@ const ShopDropdown = () => {
         onMouseEnter={handlePopoverOpen}
         className={`flex items-center ${text.md} gap-2 cursor-pointer `}
       >
-        {isLargeScreen ? (
-          <>
-            {' '}
-            SHOP
-            <ChevronDown className='h-3 w-3' />
-          </>
-        ) : (
-          <Menu />
-        )}
+        SHOP
+        <ChevronDown className='h-3 w-3' />
       </Box>
 
       <Popover

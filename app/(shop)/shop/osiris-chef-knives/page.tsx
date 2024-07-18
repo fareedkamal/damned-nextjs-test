@@ -1,4 +1,5 @@
 import { text } from '@/app/styles';
+import DashboardBack from '@/components/dashboardBack';
 import OrisisMain from '@/components/shop/orisis/page';
 import ProductsList from '@/components/shop/products-listing';
 import { Product, fetchProducts } from '@/graphql';
@@ -11,21 +12,7 @@ const Orisis = async () => {
 
   return (
     <div>
-      <div className='fixed h-screen w-screen overflow-hidden top-0 -z-50'>
-        <video
-          loop
-          autoPlay
-          playsInline
-          muted
-          className='w-full h-full object-cover'
-          src='https://admin.damneddesigns.com/wp-content/uploads/Hero-Video.mp4'
-        >
-          <source
-            type='video/mp4'
-            src='https://admin.damneddesigns.com/wp-content/uploads/Hero-Video.mp4'
-          />
-        </video>
-      </div>
+      <DashboardBack page='chef' />
 
       <div className='flex m-auto px-8 w-full h-[400px] md:h-screen'>
         <div className='text-white my-auto text-center md:text-left'>
@@ -83,5 +70,7 @@ const Orisis = async () => {
     </div>
   );
 };
+
+const Background = () => {};
 
 export default Orisis;
