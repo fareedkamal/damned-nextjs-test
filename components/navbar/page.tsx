@@ -4,7 +4,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import MobileNavMenu from './mobile-nav-menu';
-import { Box, Collapse, Grow, Paper, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  Collapse,
+  Grow,
+  IconButton,
+  Paper,
+  useMediaQuery,
+} from '@mui/material';
 import Fade from '@mui/material/Fade';
 import { usePathname } from 'next/navigation';
 import SearchBar from './search-bar';
@@ -68,10 +75,10 @@ const Page = () => {
         <SearchBar />
       </div>
 
-      <div className='flex gap-4 items-end'>
+      <div className='flex gap-4 items-end '>
         <Cart />
         <Link href='/my-account'>
-          <UserCircle className='cursor-pointer h-5 w-5' />
+          <UserCircle className='h-5 w-5' />
         </Link>
       </div>
     </div>

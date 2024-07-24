@@ -17,12 +17,12 @@ import { getRequiredAttributes } from './helpers';
 import toast from 'react-hot-toast';
 import { LoadingButton } from '@mui/lab';
 import { Cart, CartItem } from '@/graphql';
-import { reloadBrowser } from '@/components/utils';
+import { clearLocalStorage, reloadBrowser } from '@/components/utils';
 
 const ProductDetails = ({ product }: any) => {
   const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [executing, setExecuting] = useState<any>(false);
-  const { fetching: fetchingSessionData } = useSession();
+  // const { fetching: fetchingSessionData } = useSession();
   const productId = product.databaseId as number;
   const variationId = (selectedVariation?.databaseId as number) ?? undefined;
 
@@ -36,7 +36,6 @@ const ProductDetails = ({ product }: any) => {
 
   const cartButtonDisabled =
     fetching ||
-    fetchingSessionData ||
     executing ||
     selectedVariation?.stockStatus === 'OUT_OF_STOCK' ||
     !selectedVariation;
@@ -53,23 +52,24 @@ const ProductDetails = ({ product }: any) => {
         quantity: 1,
       });
       if (!flag) {
+        clearLocalStorage();
         reloadBrowser();
         return;
       }
       toast.success(`${selectedVariation.name} is added to cart`);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast.error('Cart Session Expired.');
-      setTimeout(() => {
-        reloadBrowser();
-      }, 2000);
+      if (error.message.includes('out of stock')) {
+        toast.error('Product is currently out of stock.');
+      } else {
+        toast.error('Cart session expired.');
+        setTimeout(() => {
+          reloadBrowser();
+        }, 2000);
+      }
     }
     setExecuting(false);
   };
-
-  useEffect(() => {
-    console.log(selectedVariation);
-  }, [selectedVariation]);
 
   return (
     <div className='flex flex-col gap-4'>
@@ -115,7 +115,7 @@ const ProductDetails = ({ product }: any) => {
 
       <LoadingButton
         onClick={addToCart}
-        loading={executing}
+        loading={executing || fetching}
         disabled={cartButtonDisabled}
         className='py-2 px-8 bg-stone-400 w-fit text-white hover:bg-stone-600'
       >

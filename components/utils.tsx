@@ -16,3 +16,9 @@ export const reloadBrowser = () => {
     window.location.reload();
   }
 };
+
+export const clearLocalStorage = () => {
+  if (typeof window !== 'undefined') {
+    window.localStorage.clear();
+  }
+};
