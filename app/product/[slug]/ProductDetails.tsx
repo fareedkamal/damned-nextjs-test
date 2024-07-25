@@ -35,7 +35,6 @@ const ProductDetails = ({ product }: any) => {
   );
 
   const cartButtonDisabled =
-    fetching ||
     executing ||
     selectedVariation?.stockStatus === 'OUT_OF_STOCK' ||
     !selectedVariation;
@@ -51,11 +50,13 @@ const ProductDetails = ({ product }: any) => {
       const flag = await mutate('addToCart', {
         quantity: 1,
       });
+
       if (!flag) {
         clearLocalStorage();
         reloadBrowser();
         return;
       }
+
       toast.success(`${selectedVariation.name} is added to cart`);
     } catch (error: any) {
       console.log(error);
@@ -63,9 +64,7 @@ const ProductDetails = ({ product }: any) => {
         toast.error('Product is currently out of stock.');
       } else {
         toast.error('Cart session expired.');
-        setTimeout(() => {
-          reloadBrowser();
-        }, 2000);
+        reloadBrowser();
       }
     }
     setExecuting(false);

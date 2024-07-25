@@ -19,26 +19,24 @@ import {
   setCartOpen,
   setCartSection,
 } from '@/redux/slices/cart-slice';
-import { CheckoutProvider } from '@/client/CheckoutProvider';
+import {
+  CheckoutProvider,
+  useCheckoutDetails,
+} from '@/client/CheckoutProvider';
 import { Badge, CircularProgress, IconButton } from '@mui/material';
 import { useSession } from '@/client/SessionProvider';
-import { LoadingButton } from '@mui/lab';
 
 const Cart = () => {
   const openCart = useSelector((state: any) => state.cartSlice.openCart);
-  const { cart, fetching } = useSession();
+  const { cart } = useSession();
   const count = cart?.contents.itemCount;
-  const loading = fetching || fetching === null;
+
   return (
     <>
-      <button className='flex' onClick={() => dispatch(setCartOpen())}>
-        {loading ? (
-          <CircularProgress sx={{ color: 'grey' }} size={20} />
-        ) : (
-          <Badge badgeContent={count ?? 0} color='error'>
-            <ShoppingBagIcon className='h-5 w-5' />
-          </Badge>
-        )}
+      <button onClick={() => dispatch(setCartOpen())}>
+        <Badge badgeContent={count ?? 0} color='error'>
+          <ShoppingBagIcon className='h-5 w-5' />
+        </Badge>
       </button>
 
       {/* <button

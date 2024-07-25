@@ -6,6 +6,8 @@ import {
   setCartClose,
   setCartLoading,
   setCartSection,
+  setCheckingOut,
+  setPaymentMethod,
 } from '@/redux/slices/cart-slice';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -23,72 +25,99 @@ import { combinedSchema, onlyBillingSchema } from './checkout/helpers';
 import BillingForm from './checkout/billing-form';
 import ShippingForm from './checkout/shipping-form';
 import toast from 'react-hot-toast';
-import { Button } from '@mui/material';
-import { useCountries } from '@/hooks/useCountries';
-import { reloadBrowser } from '@/components/utils';
+import { Button, Divider, FormControl, MenuItem, Select } from '@mui/material';
+import { Loader, reloadBrowser } from '@/components/utils';
 
 const CheckoutSection = () => {
+  //-------------------->     CONSTANTS & HOOKS
+  //-------------------->
+  //-------------------->
+  const checkingOut = useSelector((state: any) => state.cartSlice.checkingOut);
+  const cartLoading = useSelector((state: any) => state.cartSlice.cartLoading);
+
+  const paymentMethods = [
+    // { value: 'nmi', name: 'Credit Card' },
+    // { value: 'sezzle', name: 'Sezzle' },
+    { value: 'cod', name: 'Cash on Delivery' },
+  ];
+  const { push } = useRouter();
+  const [checkoutSuccess, setCheckoutSuccess] = useState<any>(null);
+
   const diffShipAddress = useSelector(
     (state: any) => state.cartSlice.diffShipAddress
   );
-  const { billing, shipping, updateCheckoutDetails } = useCheckoutDetails();
-  const { cart: cartData, updateCart } = useSession();
-  const cart = cartData as Cart;
+  const paymentMethod = useSelector(
+    (state: any) => state.cartSlice.paymentMethod
+  );
+  // const { cart: cartData, updateCart } = useSession();
+  // const cart = cartData as Cart;
 
-  const { setShippingLocale } = useOtherCartMutations<Data>(sessionContext);
+  const {
+    customerId,
+    billing,
+    shipping,
+    lineItems,
+    shippingLines,
+    coupons,
+    createOrder,
+    updateCheckoutDetails,
+  } = useCheckoutDetails();
 
   const initialValues = { billing: billing, shipping: shipping };
 
+  //------------------> FUNCTIONS
+  //-------------------->
+  //-------------------->
+
+  const changePaymentMethod = (e: any) => {
+    dispatch(setPaymentMethod(e.target.value));
+  };
+
   const handleSubmit = async (values: any) => {
-    dispatch(setCartLoading(true));
+    dispatch(setCheckingOut(true));
     try {
-      let detialsUpdated: any;
-      if (diffShipAddress) {
-        detialsUpdated = await updateCheckoutDetails({
-          billing: values.billing,
-          shipping: values.shipping,
-        });
-      } else {
-        detialsUpdated = await updateCheckoutDetails({
-          billing: values.billing,
-        });
-      }
+      const detialsUpdated = await updateCheckoutDetails({
+        billing: values.billing,
+        shipping: diffShipAddress ? values.shipping : values.billing,
+      });
       if (!detialsUpdated) {
+        console.log(detialsUpdated);
+        toast.error('Error while updating checkout details.');
         reloadBrowser();
+        return;
       }
 
-      await setShippingLocale({
-        country: diffShipAddress
-          ? values.shipping.country
-          : values.billing.country,
-        city: diffShipAddress ? values.shipping.city : values.billing.city,
-        state: diffShipAddress ? values.shipping.state : values.billing.state,
-        postcode: diffShipAddress
-          ? values.shipping.postcode
-          : values.billing.postcode,
+      const order = await createOrder({
+        customerId,
+        billing,
+        shipping,
+        lineItems,
+        shippingLines,
+        coupons,
+        paymentMethod: 'cod',
+        paymentMethodTitle: 'Cash on Delivery',
       });
 
-      const cartUpdated = await updateCart({
-        mutation: 'updateItemQuantities',
-        input: {
-          items: [
-            {
-              key: cart?.contents?.nodes[0].key as string,
-              quantity: cart?.contents?.nodes[0].quantity as number,
-            },
-          ],
-        },
-      });
+      if (!order) {
+        console.log(order);
+        toast.error('Error while creating order.');
+        reloadBrowser();
+        return;
+      }
 
-      console.log(cartUpdated);
+      setCheckoutSuccess(true);
 
-      dispatch(setCartLoading(false));
-      dispatch(setCartSection('PAYMENT'));
+      setTimeout(() => {
+        push(`/order-recieved/${order.orderNumber}?key=${order.orderKey}`);
+        dispatch(setCartClose());
+        dispatch(setCartSection('CART'));
+      }, 5000);
     } catch (error) {
       console.log(error);
       toast.error('Cart Session Expired');
       reloadBrowser();
     }
+    dispatch(setCheckingOut(false));
   };
 
   const formik = useFormik({
@@ -118,10 +147,10 @@ const CheckoutSection = () => {
         </div>
       </div>
       <div className='relative overflow-scroll flex-col no-scrollbar flex flex-1 justify-between '>
-        <div className='p-4'>
+        <div className='p-4 flex flex-col gap-8'>
           <BillingForm formik={formik} />
 
-          <div className='my-4 flex gap-2'>
+          <div className='flex gap-2'>
             <input
               type='checkbox'
               checked={diffShipAddress}
@@ -132,15 +161,48 @@ const CheckoutSection = () => {
 
           {diffShipAddress ? <ShippingForm formik={formik} /> : null}
         </div>
+
+        <Divider sx={{ my: 1 }} />
+
+        <div className='p-4'>
+          <p className='mb-2 font-bold'>Select Payment Method</p>
+          <FormControl fullWidth>
+            <Select
+              size='small'
+              value={paymentMethod}
+              onChange={changePaymentMethod}
+            >
+              {paymentMethods.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+
+        <CartTotal showDetails={true} />
       </div>
 
       <Button
         type='submit'
+        disabled={cartLoading || checkingOut}
         onClick={() => formik.handleSubmit()}
         className='py-8 bg-stone-500 w-full rounded-none text-white hover:bg-stone-600'
       >
-        Confirm Details
+        Checkout
       </Button>
+
+      {checkoutSuccess ? (
+        <div className='absolute bg-white z-[999] h-full w-full flex '>
+          <div className='m-auto'>
+            <p>
+              {`Thank You for your order. We're redirecting to your order page`}
+            </p>
+            <Loader />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 };

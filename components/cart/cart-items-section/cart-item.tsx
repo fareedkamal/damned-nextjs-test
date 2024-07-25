@@ -30,7 +30,7 @@ export function CartItem({ item, priority }: CartItemProps) {
   const quantityLeft = item?.variation?.node?.stockQuantity ?? 0;
   const productImageSrc = item?.variation?.node?.image?.sourceUrl ?? '';
   const productName = item?.product?.node.name ?? '';
-  const productPrice = item?.total ?? '';
+  const productPrice = item?.subtotal ?? '';
   const productVariation = item?.variation?.attributes
     ? item?.variation?.attributes[0]?.value
     : '';

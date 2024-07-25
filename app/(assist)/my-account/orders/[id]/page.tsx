@@ -71,26 +71,30 @@ export const OrderDetails = ({ order }: { order: Order }) => {
       <div className='flex gap-6'>
         <div className='flex-1 border p-4 border-stone-400'>
           <h1>BILLING ADDRESS</h1>
-          <p>{`${order.billing?.firstName} ${order.billing?.lastName}`}</p>
-          <p>{order.billing?.address1}</p>
-          <p>{order.billing?.address2}</p>
-          <p>{order.billing?.city}</p>
-          <p>{order.billing?.state}</p>
-          <p>{order.billing?.postcode}</p>
-          <p>{order.billing?.country}</p>
-          <p>{order.billing?.phone}</p>
-          <p>{order.billing?.email}</p>
+          <p>{`${order.billing?.firstName ?? ''} ${
+            order.billing?.lastName ?? ''
+          }`}</p>
+          <p>{order.billing?.address1 ?? ''}</p>
+          <p>{order.billing?.address2 ?? ''}</p>
+          <p>{order.billing?.city ?? ''}</p>
+          <p>{order.billing?.state ?? ''}</p>
+          <p>{order.billing?.postcode ?? ''}</p>
+          <p>{order.billing?.country ?? ''}</p>
+          <p>{order.billing?.phone ?? ''}</p>
+          <p>{order.billing?.email ?? ''}</p>
         </div>
 
         <div className='flex-1 p-4 border border-stone-400'>
           <h1>SHIPPING ADDRESS</h1>
-          <p>{`${order.shipping?.firstName} ${order.shipping?.lastName}`}</p>
-          <p>{order.shipping?.address1}</p>
-          <p>{order.shipping?.address2}</p>
-          <p>{order.shipping?.city}</p>
-          <p>{order.shipping?.state}</p>
-          <p>{order.shipping?.postcode}</p>
-          <p>{order.shipping?.country}</p>
+          <p>{`${order.shipping?.firstName ?? ''} ${
+            order.shipping?.lastName ?? ''
+          }`}</p>
+          <p>{order.shipping?.address1 ?? ''}</p>
+          <p>{order.shipping?.address2 ?? ''}</p>
+          <p>{order.shipping?.city ?? ''}</p>
+          <p>{order.shipping?.state ?? ''}</p>
+          <p>{order.shipping?.postcode ?? ''}</p>
+          <p>{order.shipping?.country ?? ''}</p>
         </div>
       </div>
     </div>

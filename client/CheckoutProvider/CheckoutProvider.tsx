@@ -21,6 +21,7 @@ import {
 import { apiCall } from '@/utils/apiCall';
 import { useSession } from '@/client/SessionProvider';
 import { blankAddress, Address } from '@/client/AddressForm';
+import { availableParallelism } from 'os';
 // import { Separator } from '@/ui/separator';
 // import { CheckoutProgress } from './CheckoutProgress';
 
@@ -148,20 +149,26 @@ export function CheckoutProvider({ children }: CheckoutProps) {
     const appliedCoupons = (cart?.appliedCoupons || []) as AppliedCoupon[];
 
     let shippingLines: ShippingLineInput[] = [];
+
     if (shippingTotal) {
+      console.log(chosenShippingMethods);
+      console.log(availableShippingMethods);
       chosenShippingMethods?.forEach((method) => {
         availableShippingMethods?.forEach((availableMethod) => {
-          const { cost, id, label } = availableMethod?.rates?.find(
+          const shippingRate = availableMethod?.rates?.find(
             (rate) => rate?.id === method
           ) as ShippingRate;
+          if (!shippingRate) return;
           shippingLines.push({
-            methodId: id,
-            methodTitle: label as string,
-            total: cost as string,
+            methodId: shippingRate?.id,
+            methodTitle: shippingRate?.label as string,
+            total: shippingRate?.cost as string,
           });
         });
       });
     }
+
+    console.log('shipping lines', shippingLines);
 
     let lineItems: LineItemInput[] = [];
     if (cartItems?.length) {

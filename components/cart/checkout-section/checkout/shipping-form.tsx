@@ -8,13 +8,69 @@ import {
   TextField,
 } from '@mui/material';
 import { useCountries } from '@/hooks/useCountries';
-import { CountriesEnum } from '@/graphql';
+import { Cart, CountriesEnum } from '@/graphql';
+import { setCartLoading, setDiffShipAddress } from '@/redux/slices/cart-slice';
+import { Data, sessionContext, useSession } from '@/client/SessionProvider';
+import { useCheckoutDetails } from '@/client/CheckoutProvider';
+import { useOtherCartMutations } from '@woographql/react-hooks';
+import { useSelector } from 'react-redux';
+import { dispatch } from '@/redux/store';
+import toast from 'react-hot-toast';
+import { reloadBrowser } from '@/components/utils';
 
 const ShippingForm = ({ formik }: any) => {
+  const { cart: cartData, updateCart } = useSession();
+  const cart = cartData as Cart;
+  //const { updateCheckoutDetails } = useCheckoutDetails();
+  const { setShippingLocale } = useOtherCartMutations<Data>(sessionContext);
+  const diffShipAddress = useSelector(
+    (state: any) => state.cartSlice.diffShipAddress
+  );
+
   const shippingCountry = formik.values.shipping.country as CountriesEnum;
   const prevShippingCountry = useRef(shippingCountry);
   const { countries: shippingCountries, states: shippingStates } =
     useCountries(shippingCountry);
+
+  const updateShippingRate = async () => {
+    dispatch(setCartLoading(true));
+    try {
+      // const detialsUpdated = await updateCheckoutDetails({
+      //   billing: {
+      //     ...formik.values.billing,
+      //     country: formik.values.billing.country,
+      //   },
+      // });
+
+      // if (!detialsUpdated) {
+      //   reloadBrowser();
+      // }
+
+      await setShippingLocale({
+        country: formik.values.shipping.country,
+        city: formik.values.shipping.city,
+        state: formik.values.shipping.state,
+        postcode: formik.values.shipping.postcode,
+      });
+
+      await updateCart({
+        mutation: 'updateItemQuantities',
+        input: {
+          items: [
+            {
+              key: cart?.contents?.nodes[0].key as string,
+              quantity: cart?.contents?.nodes[0].quantity as number,
+            },
+          ],
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error('Cart Session Expired');
+      reloadBrowser();
+    }
+    dispatch(setCartLoading(false));
+  };
 
   useEffect(() => {
     if (shippingStates && prevShippingCountry.current !== shippingCountry) {
@@ -26,10 +82,16 @@ const ShippingForm = ({ formik }: any) => {
     }
   }, [shippingStates]);
 
+  useEffect(() => {
+    if (diffShipAddress) {
+      updateShippingRate();
+    }
+  }, [shippingCountry, diffShipAddress]);
+
   return (
-    <div className=' flex flex-col gap-4'>
-      <div>SHIPPING DETAILS</div>
-      <div>
+    <div className='grid grid-cols-2 gap-2'>
+      <div className='col-span-2'>SHIPPING DETAILS</div>
+      <div className='col-span-1'>
         <label htmlFor='firstName'>First Name</label>
         <TextField
           fullWidth
@@ -51,7 +113,7 @@ const ShippingForm = ({ formik }: any) => {
         />
       </div>
 
-      <div>
+      <div className='col-span-1'>
         <label htmlFor='lastName'>Last Name</label>
         <TextField
           fullWidth
@@ -73,7 +135,7 @@ const ShippingForm = ({ formik }: any) => {
         />
       </div>
 
-      <FormControl fullWidth size='small'>
+      <FormControl className='col-span-1' fullWidth size='small'>
         <label htmlFor='country'>Country / Region</label>
         <Select
           MenuProps={{
@@ -103,7 +165,7 @@ const ShippingForm = ({ formik }: any) => {
         </FormHelperText>
       </FormControl>
 
-      <FormControl fullWidth size='small'>
+      <FormControl className='col-span-1' fullWidth size='small'>
         <label htmlFor='state'>State</label>
         <Select
           MenuProps={{
@@ -134,7 +196,7 @@ const ShippingForm = ({ formik }: any) => {
         </FormHelperText>
       </FormControl>
 
-      <div className='flex flex-col gap-4'>
+      <div className='col-span-2 flex flex-col gap-4'>
         <label htmlFor='address1'>Street Address</label>
         <TextField
           fullWidth
@@ -176,7 +238,7 @@ const ShippingForm = ({ formik }: any) => {
         />
       </div>
 
-      <div>
+      <div className='col-span-1'>
         <label htmlFor='city'>Town / City</label>
         <TextField
           fullWidth
@@ -197,7 +259,7 @@ const ShippingForm = ({ formik }: any) => {
         />
       </div>
 
-      <div>
+      <div className='col-span-1'>
         <label htmlFor='postcode'>ZIP Code</label>
         <TextField
           fullWidth

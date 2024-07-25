@@ -13,7 +13,9 @@ export const Loader = ({ className, text }: any) => {
 
 export const reloadBrowser = () => {
   if (typeof window !== 'undefined') {
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
   }
 };
 
