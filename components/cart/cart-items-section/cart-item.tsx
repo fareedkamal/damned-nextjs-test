@@ -11,7 +11,7 @@ import { sessionContext, useSession } from '@/client/SessionProvider';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { dispatch } from '@/redux/store';
-import { setCartClose, setCartLoading } from '@/redux/slices/cart-slice';
+import { setCartClose, setCheckingOut } from '@/redux/slices/cart-slice';
 import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import { IconButton } from '@mui/material';
@@ -46,7 +46,7 @@ export function CartItem({ item, priority }: CartItemProps) {
   const [value, setValue] = useState<number>(quantityFound);
 
   const updateQuantity = async () => {
-    dispatch(setCartLoading(true));
+    dispatch(setCheckingOut(true));
     try {
       const res = await mutate('updateItemQuantities', { quantity });
       if (!res) {
@@ -59,11 +59,11 @@ export function CartItem({ item, priority }: CartItemProps) {
         reloadBrowser();
       }, 2000);
     }
-    dispatch(setCartLoading(false));
+    dispatch(setCheckingOut(false));
   };
 
   const removeCartItem = async () => {
-    dispatch(setCartLoading(true));
+    dispatch(setCheckingOut(true));
     try {
       const res = await mutate('removeItemsFromCart', {});
       if (!res) {
@@ -76,7 +76,7 @@ export function CartItem({ item, priority }: CartItemProps) {
         reloadBrowser();
       }, 2000);
     }
-    dispatch(setCartLoading(false));
+    dispatch(setCheckingOut(false));
   };
 
   const handleChange = async (e: any) => {
