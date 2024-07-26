@@ -4,7 +4,7 @@ import OrisisMain from '@/components/shop/orisis/page';
 import ProductsList from '@/components/shop/products-listing';
 import { Product, fetchProducts } from '@/graphql';
 
-const Orisis = async () => {
+const Orisis: React.FC = async () => {
   const { nodes: products } = await fetchProducts({
     first: 30,
     where: { categoryId: 1269 },

@@ -38,7 +38,7 @@ const data = [
   },
 ];
 
-const Shop = () => {
+const Shop: React.FC = () => {
   return (
     <div
       className='overflow-hidden

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Shop from './(shop)/shop/page';
+import Shop from './shop/page';
 import Link from 'next/link';
 import Cards from '@/components/dashboard/cards/page';
 import Ticket from '@/components/dashboard/tickets/page';

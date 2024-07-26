@@ -2,7 +2,7 @@ import DashboardBack from '@/components/dashboardBack';
 import ProductsList from '@/components/shop/products-listing';
 import { fetchProducts } from '@/graphql';
 
-const Edc = async () => {
+const Edc: React.FC = async () => {
   const { nodes: products } = await fetchProducts({
     first: 50,
     where: { categoryId: 1143 },

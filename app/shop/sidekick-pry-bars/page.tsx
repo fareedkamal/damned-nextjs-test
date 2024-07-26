@@ -3,7 +3,7 @@ import ProductsList from '@/components/shop/products-listing';
 import { fetchProducts } from '@/graphql';
 import Image from 'next/image';
 
-export default async function SideKid() {
+const Page: React.FC = async () => {
   const { nodes: products } = await fetchProducts({
     first: 30,
     where: { categoryId: 1270 },
@@ -64,4 +64,6 @@ export default async function SideKid() {
       </div>
     </div>
   );
-}
+};
+
+export default Page;
