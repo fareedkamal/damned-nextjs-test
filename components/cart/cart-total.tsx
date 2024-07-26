@@ -75,9 +75,12 @@ const CartTotal = ({ showDetails }: { showDetails?: Boolean | undefined }) => {
 const ShippingOptions = () => {
   const { cart: cartData } = useSession();
   const cart = cartData as Cart;
+  const cartSection = useSelector((state: any) => state.cartSlice.cartSection);
 
   const handleClick = () => {
-    dispatch(setCartSection('CHECKOUT'));
+    if (cartSection !== 'CHECKOUT') {
+      dispatch(setCartSection('CHECKOUT'));
+    }
     dispatch(setChangeShipping(true));
   };
 
