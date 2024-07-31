@@ -4,7 +4,12 @@ import FooterBar from '@/components/footer/page';
 import { SessionProvider } from '@/client/SessionProvider';
 import { Toaster } from 'react-hot-toast';
 import ReduxProvider from '@/redux/provider';
-import Cart from '@/components/cart';
+import { Montserrat } from 'next/font/google';
+
+const font = Montserrat({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+});
 
 export default function RootLayout({
   children,
@@ -13,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body suppressHydrationWarning={true}>
+      <body className={font.className} suppressHydrationWarning={true}>
         <ReduxProvider>
           <SessionProvider>
             <div className='flex flex-col w-full h-screen'>
