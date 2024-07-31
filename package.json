@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.11.5",
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+    "@lydiagoulding/react-nmi-collectjs": "^0.2.0",
     "@mui/icons-material": "^5.16.1",
     "@mui/lab": "^5.0.0-alpha.171",
     "@mui/material": "^5.16.0",
