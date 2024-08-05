@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import ReduxProvider from '@/redux/provider';
 import { Montserrat } from 'next/font/google';
 import { createTheme } from '@mui/material';
+import Script from 'next/script';
 
 const font = Montserrat({
   subsets: ['latin'],
@@ -19,12 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <head>
-        <script
-          src='https://secure.nmi.com/token/Collect.js'
-          data-tokenization-key='5mN8N7-jhr55W-N22pxX-uAW2s9'
-        ></script>
-      </head>
+      <Script
+        src='https://secure.nmi.com/token/Collect.js'
+        data-tokenization-key='5mN8N7-jhr55W-N22pxX-uAW2s9'
+      />
       <body className={font.className} suppressHydrationWarning={true}>
         <ReduxProvider>
           <SessionProvider>

@@ -16,8 +16,7 @@ import {
   useCheckoutDetails,
 } from '@/client/CheckoutProvider';
 import { useRouter } from 'next/navigation';
-import { Data, sessionContext, useSession } from '@/client/SessionProvider';
-import { useOtherCartMutations } from '@woographql/react-hooks';
+import { useSession } from '@/client/SessionProvider';
 import { useFormik } from 'formik';
 import { Cart, CountriesEnum } from '@/graphql';
 import { combinedSchema, onlyBillingSchema } from './checkout/helpers';
