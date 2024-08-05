@@ -5,10 +5,11 @@ import { SessionProvider } from '@/client/SessionProvider';
 import { Toaster } from 'react-hot-toast';
 import ReduxProvider from '@/redux/provider';
 import { Montserrat } from 'next/font/google';
+import { createTheme } from '@mui/material';
 
 const font = Montserrat({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['200', '300', '400', '500', '600', '700', '800'],
 });
 
 export default function RootLayout({
@@ -18,6 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
+      <head>
+        <script
+          src='https://secure.nmi.com/token/Collect.js'
+          data-tokenization-key='5mN8N7-jhr55W-N22pxX-uAW2s9'
+        ></script>
+      </head>
       <body className={font.className} suppressHydrationWarning={true}>
         <ReduxProvider>
           <SessionProvider>

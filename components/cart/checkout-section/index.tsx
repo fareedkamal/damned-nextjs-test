@@ -8,7 +8,7 @@ import {
   setCartSection,
   setPaymentMethod,
 } from '@/redux/slices/cart-slice';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { setDiffShipAddress } from '@/redux/slices/cart-slice';
 import {
@@ -31,10 +31,14 @@ const CheckoutSection = () => {
   //-------------------->     CONSTANTS & HOOKS
   //-------------------->
   //-------------------->
+  const [validnumber, setValidNumber] = useState('');
+  const [validexpiration, setValidExpiration] = useState('');
+  const [validcvv, setValidCvv] = useState('');
+
   const cartLoading = useSelector((state: any) => state.cartSlice.cartLoading);
 
   const paymentMethods = [
-    // { value: 'nmi', name: 'Credit Card' },
+    { value: 'nmi', name: 'NMI' },
     // { value: 'sezzle', name: 'Sezzle' },
     { value: 'cod', name: 'Cash on Delivery' },
   ];
@@ -65,12 +69,40 @@ const CheckoutSection = () => {
   //------------------> FUNCTIONS
   //-------------------->
   //-------------------->
+  //-------------------->
+  //-------------------->
+  //-------------------->
 
   const changePaymentMethod = (e: any) => {
     dispatch(setPaymentMethod(e.target.value));
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmitNMI = () => {
+    if (typeof window !== 'undefined') {
+      window.CollectJS.startPaymentRequest();
+    }
+  };
+
+  const handleFormikSubmit = (values: any) => {
+    if (paymentMethod === '') {
+      toast.error('Please choose a payment method.');
+      formik.setSubmitting(false);
+    } else if (paymentMethod === 'nmi') {
+      handleSubmitNMI();
+    } else if (paymentMethod === 'cod') {
+      handleSubmit();
+    }
+  };
+
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: diffShipAddress ? combinedSchema : onlyBillingSchema,
+    onSubmit: (values) => {
+      handleFormikSubmit(values);
+    },
+  });
+
+  const handleSubmit = async (values = formik.values) => {
     dispatch(setCartLoading(true));
     try {
       let detialsUpdated;
@@ -92,6 +124,10 @@ const CheckoutSection = () => {
         return;
       }
 
+      const selectedPaymentMethod = paymentMethods.find(
+        (item) => item.value === paymentMethod
+      );
+
       const order = await createOrder({
         customerId,
         billing,
@@ -99,7 +135,7 @@ const CheckoutSection = () => {
         lineItems,
         shippingLines,
         coupons,
-        paymentMethodTitle: 'Cash on Delivery',
+        paymentMethodTitle: selectedPaymentMethod?.name ?? '',
       });
 
       if (!order) {
@@ -115,7 +151,7 @@ const CheckoutSection = () => {
         push(`/order-recieved/${order.orderNumber}?key=${order.orderKey}`);
         dispatch(setCartClose());
         dispatch(setCartSection('CART'));
-      }, 5000);
+      }, 3000);
     } catch (error) {
       console.log(error);
       toast.error('Cart Session Expired');
@@ -124,13 +160,105 @@ const CheckoutSection = () => {
     dispatch(setCartLoading(false));
   };
 
-  const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: diffShipAddress ? combinedSchema : onlyBillingSchema,
-    onSubmit: (values) => {
-      handleSubmit(values);
-    },
-  });
+  //-----------------> USE EFFECTS ------------------------------>
+  //-------------------->
+  //-------------------->
+
+  useEffect(() => {
+    if (
+      paymentMethod === 'nmi' &&
+      cart?.total &&
+      typeof window !== 'undefined'
+    ) {
+      window.CollectJS.configure({
+        price: cart?.total ?? '',
+        variant: 'inline',
+        currency: 'USD',
+        country: 'US',
+        customCss: {
+          border: '1px solid #d6d3d1',
+          padding: '20px',
+          'border-radius': '4px',
+          'font-size': '20px',
+          'font-family': 'Montserrat',
+        },
+        invalidCss: {
+          border: '1px solid red',
+        },
+        validCss: {
+          'background-color': '#d0ffd0',
+        },
+        // placeholderCss: {
+        //   color: 'green',
+        //   'background-color': '#687C8D',
+        // },
+        // focusCss: {
+        //   border: '1px solid blue',
+        // },
+        fields: {
+          ccnumber: {
+            selector: '#ccnumber',
+            title: 'Card Number',
+            placeholder: '0000 0000 0000 0000',
+          },
+          ccexp: {
+            selector: '#ccexp',
+            title: 'Card Expiration',
+            placeholder: 'MM / YY',
+          },
+          cvv: {
+            // display: 'show',
+            selector: '#cvv',
+            title: 'CVV Code',
+            placeholder: 'CVV',
+          },
+        },
+        validationCallback: (field, status, message) => {
+          if (!status) {
+            const m = field + ' is invalid: ' + message;
+            if (field === 'ccnumber') {
+              setValidNumber(message);
+            }
+            if (field === 'ccexp') {
+              setValidExpiration(message);
+            }
+            if (field === 'cvv') {
+              setValidCvv(message);
+            }
+          } else {
+            if (field === 'ccnumber') {
+              setValidNumber('');
+            }
+            if (field === 'ccexp') {
+              setValidExpiration('');
+            }
+            if (field === 'cvv') {
+              setValidCvv('');
+            }
+          }
+        },
+
+        // timeoutDuration: 2000,
+        // timeoutCallback: () => {
+        //   console.log('timeout callback');
+        //   formik.setSubmitting(false);
+        //   // console.log(
+        //   //   "The tokenization didn't respond in the expected timeframe.  This could be due to an invalid or incomplete field or poor connectivity"
+        //   // );
+        //   //setAlertMessage(message);
+        // },
+
+        callback: (token: any) => {
+          console.log(token);
+          if (!token) {
+            toast.error('Transaction failed. Please try again.');
+            return;
+          }
+          handleSubmit();
+        },
+      });
+    }
+  }, [paymentMethod, cart?.total]);
 
   useEffect(() => {
     formik.setFormikState((prevState) => ({
@@ -150,6 +278,7 @@ const CheckoutSection = () => {
           <p className={`${text.md} font-medium`}>CHECKOUT</p>
         </div>
       </div>
+
       <div className='relative overflow-scroll flex-col no-scrollbar flex flex-1 justify-between '>
         <div className='p-4 flex flex-col gap-8'>
           <BillingForm formik={formik} />
@@ -183,6 +312,35 @@ const CheckoutSection = () => {
               ))}
             </Select>
           </FormControl>
+
+          {paymentMethod === 'nmi' ? (
+            <div className='mt-4'>
+              <div className='mb-2'>
+                <div id='ccnumber' />
+                {validnumber && (
+                  <div className='text-red-600 text-[12px]'>{validnumber}</div>
+                )}
+              </div>
+
+              <div className='flex justify-between gap-4'>
+                <div className='w-full'>
+                  <div id='ccexp' />
+                  {validexpiration && (
+                    <div className='text-red-600 text-[12px]'>
+                      {validexpiration}
+                    </div>
+                  )}
+                </div>
+
+                <div className='w-full'>
+                  <div id='cvv' />
+                  {validcvv && (
+                    <div className='text-red-600 text-[12px]'>{validcvv}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <CartTotal showDetails={true} />
@@ -190,7 +348,7 @@ const CheckoutSection = () => {
 
       <Button
         type='submit'
-        disabled={cartLoading}
+        disabled={cartLoading || formik.isSubmitting}
         onClick={() => formik.handleSubmit()}
         className='py-8 bg-stone-500 w-full rounded-none text-white hover:bg-stone-600'
       >
@@ -199,7 +357,7 @@ const CheckoutSection = () => {
 
       {checkoutSuccess ? (
         <div className='absolute bg-white z-[999] h-full w-full flex '>
-          <div className='m-auto'>
+          <div className='m-auto p-4 text-center'>
             <p>
               {`Thank You for your order. We're redirecting to your order page`}
             </p>
