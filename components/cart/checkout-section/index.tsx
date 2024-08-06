@@ -8,7 +8,7 @@ import {
   setCartSection,
   setPaymentMethod,
 } from '@/redux/slices/cart-slice';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { setDiffShipAddress } from '@/redux/slices/cart-slice';
 import {
@@ -30,6 +30,7 @@ const CheckoutSection = () => {
   //-------------------->     CONSTANTS & HOOKS
   //-------------------->
   //-------------------->
+
   const [validnumber, setValidNumber] = useState('');
   const [validexpiration, setValidExpiration] = useState('');
   const [validcvv, setValidCvv] = useState('');
@@ -64,7 +65,7 @@ const CheckoutSection = () => {
   } = useCheckoutDetails();
 
   const initialValues = { billing: billing, shipping: shipping };
-
+  const formikValues = useRef(initialValues);
   //------------------> FUNCTIONS
   //-------------------->
   //-------------------->
@@ -76,18 +77,16 @@ const CheckoutSection = () => {
     dispatch(setPaymentMethod(e.target.value));
   };
 
-  const handleSubmitNMI = () => {
-    if (typeof window !== 'undefined') {
-      window.CollectJS.startPaymentRequest();
-    }
-  };
-
-  const handleFormikSubmit = (values: any) => {
+  const handleFormikSubmit = () => {
+    //setValues(values);
     if (paymentMethod === '') {
       toast.error('Please choose a payment method.');
       formik.setSubmitting(false);
     } else if (paymentMethod === 'nmi') {
-      handleSubmitNMI();
+      if (typeof window !== 'undefined') {
+        window.CollectJS.startPaymentRequest();
+      }
+      //handleSubmitNMI();
     } else if (paymentMethod === 'cod') {
       handleSubmit();
     }
@@ -101,9 +100,16 @@ const CheckoutSection = () => {
     },
   });
 
-  const handleSubmit = async (values = formik.values) => {
+  const handleSubmit = async () => {
     dispatch(setCartLoading(true));
     try {
+      const values = formikValues.current;
+
+      // console.log(customerId);
+      // console.log(values);
+      // dispatch(setCartLoading(false));
+      // return;
+
       let detialsUpdated;
       if (diffShipAddress) {
         detialsUpdated = await updateCheckoutDetails({
@@ -127,16 +133,17 @@ const CheckoutSection = () => {
         (item) => item.value === paymentMethod
       );
 
-      const order = await createOrder({
+      const payload: any = {
         customerId,
-        billing,
-        shipping,
+        billing: values.billing,
+        shipping: values.shipping,
         lineItems,
         shippingLines,
         coupons,
         paymentMethodTitle: selectedPaymentMethod?.name ?? '',
-      });
+      };
 
+      const order = await createOrder(payload);
       if (!order) {
         console.log(order);
         toast.error('Error while creating order.');
@@ -162,6 +169,10 @@ const CheckoutSection = () => {
   //-----------------> USE EFFECTS ------------------------------>
   //-------------------->
   //-------------------->
+
+  useEffect(() => {
+    formikValues.current = formik.values;
+  }, [formik.values]);
 
   useEffect(() => {
     if (
@@ -347,7 +358,7 @@ const CheckoutSection = () => {
 
       <Button
         type='submit'
-        disabled={cartLoading || formik.isSubmitting}
+        disabled={cartLoading}
         onClick={() => formik.handleSubmit()}
         className='py-8 bg-stone-500 w-full rounded-none text-white hover:bg-stone-600'
       >
@@ -357,10 +368,10 @@ const CheckoutSection = () => {
       {checkoutSuccess ? (
         <div className='absolute bg-white z-[999] h-full w-full flex '>
           <div className='m-auto p-4 text-center'>
+            <Loader />
             <p>
               {`Thank You for your order. We're redirecting to your order page`}
             </p>
-            <Loader />
           </div>
         </div>
       ) : null}
