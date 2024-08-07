@@ -65,7 +65,7 @@ const CartTotal = ({ showDetails }: { showDetails?: Boolean | undefined }) => {
       {showDetails ? (
         <div className='flex gap-4 justify-between p-4 border-y'>
           <p className=''>Total</p>
-          <p>{total}</p>
+          <p>{`$${total}`}</p>
         </div>
       ) : null}
     </div>

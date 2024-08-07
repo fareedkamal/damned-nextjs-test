@@ -105,12 +105,8 @@ const CheckoutSection = () => {
     try {
       const values = formikValues.current;
 
-      // console.log(customerId);
-      // console.log(values);
-      // dispatch(setCartLoading(false));
-      // return;
-
       let detialsUpdated;
+
       if (diffShipAddress) {
         detialsUpdated = await updateCheckoutDetails({
           billing: values.billing,
@@ -136,7 +132,19 @@ const CheckoutSection = () => {
       const payload: any = {
         customerId,
         billing: values.billing,
-        shipping: values.shipping,
+        shipping: diffShipAddress
+          ? values.shipping
+          : {
+              firstName: values.billing.firstName,
+              lastName: values.billing.lastName,
+              address1: values.billing.address1,
+              address2: values.billing.address2,
+              city: values.billing.city,
+              state: values.billing.state,
+              postcode: values.billing.postcode,
+              country: values.billing.country,
+              company: values.billing.company,
+            },
         lineItems,
         shippingLines,
         coupons,
@@ -315,11 +323,48 @@ const CheckoutSection = () => {
               value={paymentMethod}
               onChange={changePaymentMethod}
             >
-              {paymentMethods.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.name}
-                </MenuItem>
-              ))}
+              <MenuItem key={'nmi'} value={'nmi'}>
+                <div className='flex gap-2'>
+                  <img
+                    src='https://admin.damneddesigns.com/wp-content/plugins/woocommerce/assets/images/icons/credit-cards/visa.svg'
+                    alt='Visa'
+                    width='32'
+                  />
+                  <img
+                    src='https://admin.damneddesigns.com/wp-content/plugins/woocommerce/assets/images/icons/credit-cards/mastercard.svg'
+                    alt='Mastercard'
+                    width='32'
+                  />
+                  <img
+                    src='https://admin.damneddesigns.com/wp-content/plugins/woocommerce/assets/images/icons/credit-cards/amex.svg'
+                    alt='Amex'
+                    width='32'
+                  />
+                  <img
+                    src='https://admin.damneddesigns.com/wp-content/plugins/woocommerce/assets/images/icons/credit-cards/discover.svg'
+                    alt='Discover'
+                    width='32'
+                  />
+                  <img
+                    src='https://admin.damneddesigns.com/wp-content/plugins/woocommerce/assets/images/icons/credit-cards/diners.svg'
+                    alt='Diners Club'
+                    width='32'
+                  />
+                  <img
+                    src='https://admin.damneddesigns.com/wp-content/plugins/woocommerce/assets/images/icons/credit-cards/jcb.svg'
+                    alt='JCB'
+                    width='32'
+                  />
+                  <img
+                    src='https://admin.damneddesigns.com/wp-content/plugins/woocommerce/assets/images/icons/credit-cards/maestro.svg'
+                    alt='Maestro'
+                    width='32'
+                  />
+                </div>
+              </MenuItem>
+              <MenuItem key={'cod'} value={'cod'}>
+                Cash on Delivery
+              </MenuItem>
             </Select>
           </FormControl>
 
@@ -358,7 +403,7 @@ const CheckoutSection = () => {
 
       <Button
         type='submit'
-        disabled={cartLoading}
+        disabled={cartLoading || formik.isSubmitting}
         onClick={() => formik.handleSubmit()}
         className='py-8 bg-stone-500 w-full rounded-none text-white hover:bg-stone-600'
       >
@@ -368,10 +413,10 @@ const CheckoutSection = () => {
       {checkoutSuccess ? (
         <div className='absolute bg-white z-[999] h-full w-full flex '>
           <div className='m-auto p-4 text-center'>
-            <Loader />
-            <p>
-              {`Thank You for your order. We're redirecting to your order page`}
+            <p className='mb-2'>
+              {`Thank You. Your order has been recieved. Plese wait. We're redirecting to your order...`}
             </p>
+            <Loader />
           </div>
         </div>
       ) : null}
